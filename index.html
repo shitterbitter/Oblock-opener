@@ -2,47 +2,236 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>O Block Case Opening</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>💰 O Block Case Opener</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-body { margin:0; font-family: 'Inter', sans-serif; background:#111; color:#fff; }
-.overlay { position: relative; background:#000; border:2px solid orange; color:orange; padding:40px 20px; min-height:100vh; text-align:center; }
-h1,h2 { color:orange; margin-bottom:20px; }
-.roller-container { position:relative; width:400px; height:100px; overflow:hidden; margin:20px auto; border-radius:12px; border:2px solid orange; background:#111; }
-.reel { display:flex; align-items:center; height:100%; will-change: transform; }
-.reel span { min-width:100px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; flex-shrink:0; margin:0 2px; border-radius:8px; font-weight:800; }
-.indicator { position:absolute; top:0; left:50%; width:100px; height:100%; margin-left:-50px; border:3px solid orange; pointer-events:none; }
-.btn { display:inline-block; background:orange; color:#111; padding:12px 20px; border-radius:14px; border:none; font-weight:800; cursor:pointer; margin:5px; font-size:1rem; }
-.inventory { margin-top:30px; max-width:800px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center; border-top:2px solid orange; padding-top:10px; }
-.item { padding:10px 14px; border-radius:10px; font-weight:600; min-width:70px; text-align:center; cursor:pointer; user-select:none; border:2px solid orange; }
-.item.selected { outline:2px solid #fff; }
-.grey { background-color:#444;color:#fff; }
-.blue { background-color:#ff8c00;color:#111; }
+:root{
+  --royal-blue-1:#062a52;
+  --royal-blue-2:#1b4f84;
+  --gold-1:#ffd36b;
+  --gold-2:#b8860b;
+  --accent:#ff9900;
+  --bg-dark:#1e1e2f;
+  --panel-dark:#2b2b3c;
+}
+
+/* General reset */
+html,body{
+  margin:0;
+  height:100%;
+  font-family:'Inter',sans-serif;
+  overflow-x:hidden;
+  background:linear-gradient(135deg,var(--royal-blue-1),var(--royal-blue-2));
+  color:#fff;
+}
+
+/* Sparkle canvas */
+#sparkleCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+
+/* Main container */
+.container{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:24px;
+  text-align:center;
+  z-index:1;
+  position:relative;
+}
+
+/* Roller panel */
+.roller-panel{
+  margin-top:40px;
+  padding:28px 20px;
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.06);
+  backdrop-filter:blur(6px);
+  box-shadow:0 18px 40px rgba(0,0,0,0.45);
+  width:fit-content;
+}
+
+/* Roller */
+.roller-container {
+  position: relative;
+  width: 400px;
+  height: 100px;
+  overflow: hidden;
+  margin: 20px auto;
+  border-radius: 16px;
+  border: 2px solid var(--accent);
+  background: var(--bg-dark);
+  box-shadow: inset 0 0 10px rgba(255,153,0,0.3);
+}
+.reel {
+  display:flex;
+  align-items:center;
+  height:100%;
+  will-change: transform;
+}
+.reel span {
+  min-width:100px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:2.5rem;
+  flex-shrink:0;
+  margin:0 2px;
+  border-radius:12px;
+  font-weight:800;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+.indicator {
+  position:absolute;
+  top:0;
+  left:50%;
+  width:100px;
+  height:100%;
+  margin-left:-50px;
+  border:3px solid var(--accent);
+  pointer-events:none;
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* Inventory */
+.inventory{
+  margin-top:30px;
+  max-width:800px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+  border-top:2px solid var(--accent);
+  padding-top:10px;
+}
+.item{
+  padding:10px 14px;
+  border-radius:12px;
+  font-weight:600;
+  min-width:70px;
+  text-align:center;
+  cursor:pointer;
+  user-select:none;
+  border:2px solid var(--accent);
+  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
+.item.selected{outline:2px solid #fff;}
+.grey { background-color:#555;color:#fff; }
+.blue { background-color:#1e90ff;color:#fff; }
 .purple { background-color:#8b00ff;color:#fff; }
 .red { background-color:#e74c3c;color:#fff; }
 .gold { background-color:#ffd700;color:#111; }
-.gamble-section { margin-top:50px; }
+
+/* Buttons */
+.btn{
+  background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+  color:#111;
+  padding:12px 20px;
+  border-radius:14px;
+  border:none;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 10px 30px rgba(184,134,11,0.12);
+  margin:5px;
+}
+.btn:active{transform:translateY(1px) scale(.995);}
+
+/* Story arrow & section */
+.scroll-arrow{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:2rem;
+  color:var(--gold-1);
+  cursor:pointer;
+  z-index:10;
+  animation:bounce 1.8s infinite;
+  text-shadow:0 0 8px rgba(0,0,0,0.4);
+}
+@keyframes bounce{
+  0%,100%{transform:translate(-50%,0);}
+  50%{transform:translate(-50%,-8px);}
+}
+.story{
+  max-width:820px;
+  margin:40px auto;
+  padding:36px 22px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.03);
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity .6s ease,transform .6s ease;
+}
+.story.visible{opacity:1;transform:none;}
+.story h2{color:var(--gold-1);margin:0 0 10px;font-size:1.8rem;}
 </style>
 </head>
 <body>
-<div class="overlay">
-<h1>O Block Case Opening</h1>
-<div class="roller-container">
-  <div class="reel" id="reel"></div>
-  <div class="indicator"></div>
+
+<canvas id="sparkleCanvas"></canvas>
+
+<div class="container">
+  <h1>💥 O Block Case Opener</h1>
+  
+  <div class="roller-panel">
+    <div class="roller-container">
+      <div class="reel" id="reel"></div>
+      <div class="indicator"></div>
+    </div>
+    <button class="btn" id="spinBtn">Open Case</button>
+    
+    <h2>Inventory</h2>
+    <div class="inventory" id="inventory"></div>
+    <div class="gamble-section">
+      <h2>Gamble Selected Items</h2>
+      <button class="btn" id="gambleBtn">Gamble</button>
+    </div>
+  </div>
 </div>
-<div>
-  <button class="btn" id="spinBtn">Open Case</button>
-</div>
-<h2>Inventory</h2>
-<div class="inventory" id="inventory"></div>
-<div class="gamble-section">
-<h2>Gamble Selected Items</h2>
-<button class="btn" id="gambleBtn">Gamble</button>
-</div>
+
+<div class="scroll-arrow" id="scrollArrow">⬇</div>
+
+<div class="story" id="story">
+  <h2>🏙️ O Block Legends</h2>
+  <p>
+    Step into the streets of O Block, where the cases contain the rarest gear. Collect weapons, gamble wisely, and climb the ranks!
+  </p>
 </div>
 
 <script>
+// Sparkles
+const canvas=document.getElementById('sparkleCanvas');
+const ctx=canvas.getContext('2d');
+function sizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+sizeCanvas();
+const sparkles=[];
+for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
+function animateSparkles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(const s of sparkles){
+    ctx.beginPath();
+    ctx.fillStyle=`rgba(255,215,130,${s.opacity})`;
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+    s.y-=s.speed;
+    if(s.y<-8){s.y=canvas.height+6;s.x=Math.random()*canvas.width;}
+  }
+  requestAnimationFrame(animateSparkles);
+}
+animateSparkles();
+window.addEventListener('resize',sizeCanvas);
+
+// Scroll arrow
+const story=document.getElementById('story');
+document.getElementById('scrollArrow').addEventListener('click',()=>{story.scrollIntoView({behavior:'smooth'});});
+story.classList.add('visible');
+
+// Case opener logic
 const itemsByRarity = {
   grey: [{name:'Pistol',emoji:'🔫'},{name:'Shotgun',emoji:'🛠️'},{name:'SMG',emoji:'🟡'}],
   blue: [{name:'Pistol',emoji:'🔫'},{name:'SMG',emoji:'🟡'},{name:'AR',emoji:'🔰'}],
@@ -50,7 +239,6 @@ const itemsByRarity = {
   red: [{name:'AR',emoji:'🔰'},{name:'Sniper',emoji:'🎯'}],
   gold: [{name:'Knife',emoji:'🔪'},{name:'Gloves',emoji:'🧤'}]
 };
-
 const rarityChances=[
   {rarity:'grey',chance:0.45},
   {rarity:'blue',chance:0.35},
@@ -74,13 +262,11 @@ function weightedRarity(){
   }
   return 'grey';
 }
-
 function getRandomItemForRarity(rarity){
   const pool=itemsByRarity[rarity];
   const item=pool[Math.floor(Math.random()*pool.length)];
   return {...item, rarity};
 }
-
 function updateInventory(){
   inventoryEl.innerHTML='';
   inventory.forEach((item,index)=>{
@@ -92,7 +278,6 @@ function updateInventory(){
     inventoryEl.appendChild(div);
   });
 }
-
 function generateRollerArray(totalSlots=40){
   const finalRarity=weightedRarity();
   const finalItem=getRandomItemForRarity(finalRarity);
@@ -105,7 +290,6 @@ function generateRollerArray(totalSlots=40){
   array[midIndex]=finalItem;
   return {array, finalItem};
 }
-
 function spinCase(){
   spinBtn.disabled=true;
   const {array: reelArray, finalItem}=generateRollerArray();
@@ -124,7 +308,7 @@ function spinCase(){
     if(!start) start=timestamp;
     const progress=Math.min((timestamp-start)/duration,1);
     const ease=1-Math.pow(1-progress,3);
-    const offset=ease*(reelArray.length-1)*itemWidth-(visibleSlots/2*itemWidth-itemWidth/2);
+    const offset=ease*(reelArray.length-1)*itemWidth-(visibleSlots /2*itemWidth - itemWidth/2);
     reelEl.style.transform=`translateX(-${offset}px)`;
     if(progress<1) requestAnimationFrame(animate);
     else{
@@ -150,7 +334,6 @@ function gambleItems(){
   let sum=0;
   for(const k in odds) sum+=odds[k];
   for(const k in odds) odds[k]/=sum;
-
   function weightedGambleRarity(){
     const r=Math.random();
     let total=0;
@@ -160,15 +343,14 @@ function gambleItems(){
     }
     return 'grey';
   }
-
   const rarity=weightedGambleRarity();
-  const pool=itemsByRarity[rarity];
-  const newItem=pool[Math.floor(Math.random()*pool.length)];
-  const indexes=selected.map(el=>parseInt(el.dataset.index)).sort((a,b)=>b-a);
-  indexes.forEach(i=>inventory.splice(i,1));
-  inventory.push({...newItem,rarity});
+  const item=getRandomItemForRarity(rarity);
+  selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>{
+    inventory.splice(div.dataset.index,1);
+  });
+  inventory.push(item);
   updateInventory();
-  alert("Gambled and received: "+newItem.emoji+" "+newItem.name+" ("+rarity+")");
+  alert(`You gambled ${n} items and got: ${item.emoji} ${item.name} (${item.rarity})`);
 }
 
 spinBtn.addEventListener('click',spinCase);
