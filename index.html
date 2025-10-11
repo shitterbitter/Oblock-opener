@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>💰 O Block Case Opener</title>
+<title>💥 O Block Case Opener</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -15,7 +15,6 @@
   --bg-dark:#1e1e2f;
 }
 
-/* General reset */
 html,body{
   margin:0;
   height:100%;
@@ -82,7 +81,18 @@ html,body{
   border-radius:12px;
   font-weight:800;
   box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  position:relative;
 }
+.reel span .condition{
+  position:absolute;
+  top:2px;
+  right:4px;
+  font-size:0.7rem;
+  font-weight:800;
+  color:#fff;
+}
+
+/* Indicator */
 .indicator {
   position:absolute;
   top:0;
@@ -116,8 +126,19 @@ html,body{
   user-select:none;
   border:2px solid var(--accent);
   box-shadow: 0 0 8px rgba(0,0,0,0.5);
+  position:relative;
 }
 .item.selected{outline:2px solid #fff;}
+.item .condition{
+  position:absolute;
+  top:2px;
+  right:4px;
+  font-size:0.7rem;
+  font-weight:800;
+  color:#fff;
+}
+
+/* Colors by rarity */
 .grey { background-color:#555;color:#fff; }
 .blue { background-color:#1e90ff;color:#fff; }
 .purple { background-color:#8b00ff;color:#fff; }
@@ -180,7 +201,7 @@ html,body{
 <div class="story" id="story">
   <h2>🏙️ O Block Legends</h2>
   <p>
-    Step into the streets of O Block, where the cases contain the rarest gear. Collect weapons, gamble wisely, and climb the ranks!
+    Step into the streets of O Block, where the cases contain the rarest gear. Collect weapons in top condition, gamble wisely, and climb the ranks!
   </p>
 </div>
 
@@ -192,12 +213,10 @@ function sizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerH
 sizeCanvas();
 const sparkles=[];for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
 function animateSparkles(){ctx.clearRect(0,0,canvas.width,canvas.height);for(const s of sparkles){ctx.beginPath();ctx.fillStyle=`rgba(255,215,130,${s.opacity})`;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();s.y-=s.speed;if(s.y<-8){s.y=canvas.height+6;s.x=Math.random()*canvas.width;}}requestAnimationFrame(animateSparkles);}
-animateSparkles();
-window.addEventListener('resize',sizeCanvas);
+animateSparkles();window.addEventListener('resize',sizeCanvas);
 
 // Story
-const story=document.getElementById('story');
-story.classList.add('visible');
+const story=document.getElementById('story');story.classList.add('visible');
 
 // Case opener logic
 const itemsByRarity = {
@@ -215,34 +234,25 @@ const rarityChances=[
   {rarity:'gold',chance:0.005}
 ];
 
+const conditions = ['FT','WW','MW','FN'];
+const conditionChances = {FT:0.4, WW:0.3, MW:0.2, FN:0.1};
+
 let inventory=[];
 const reelEl=document.getElementById('reel');
 const inventoryEl=document.getElementById('inventory');
 const spinBtn=document.getElementById('spinBtn');
 const gambleBtn=document.getElementById('gambleBtn');
 
-function weightedRarity(){
-  const r=Math.random();
-  let sum=0;
-  for(const w of rarityChances){
-    sum+=w.chance;
-    if(r<sum) return w.rarity;
-  }
-  return 'grey';
-}
-
-function getRandomItemForRarity(rarity){
-  const pool=itemsByRarity[rarity];
-  const item=pool[Math.floor(Math.random()*pool.length)];
-  return {...item, rarity};
-}
+function weightedRarity(){const r=Math.random();let sum=0;for(const w of rarityChances){sum+=w.chance;if(r<sum)return w.rarity;}return 'grey';}
+function weightedCondition(){const r=Math.random();let sum=0;for(const c of conditions){sum+=conditionChances[c];if(r<sum)return c;}return 'FT';}
+function getRandomItemForRarity(rarity){const pool=itemsByRarity[rarity];const item=pool[Math.floor(Math.random()*pool.length)];return {...item, rarity, condition:weightedCondition()};}
 
 function updateInventory(){
   inventoryEl.innerHTML='';
   inventory.forEach((item,index)=>{
     const div=document.createElement('div');
     div.className='item '+item.rarity;
-    div.textContent=item.emoji+' '+item.name;
+    div.innerHTML=`${item.emoji} ${item.name}<span class="condition">${item.condition}</span>`;
     div.dataset.index=index;
     div.addEventListener('click',()=>div.classList.toggle('selected'));
     inventoryEl.appendChild(div);
@@ -259,7 +269,7 @@ function generateRollerArray(totalSlots=40){
     array.push(getRandomItemForRarity(r));
   }
   const midIndex=Math.floor(totalSlots/2);
-  array[midIndex]=finalItem; // ensure snap to indicator
+  array[midIndex]=finalItem;
   return {array, finalItem, midIndex};
 }
 
@@ -269,8 +279,8 @@ function spinCase(){
   reelEl.innerHTML='';
   reelArray.forEach(item=>{
     const span=document.createElement('span');
-    span.textContent=item.emoji;
     span.className=item.rarity;
+    span.innerHTML=`${item.emoji}<span class="condition">${item.condition}</span>`;
     reelEl.appendChild(span);
   });
   const duration=5000;
@@ -292,60 +302,47 @@ function spinCase(){
   requestAnimationFrame(animate);
 }
 
-// New gambling logic
+// Gambling logic with conditions
 function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
 
-  // Calculate total rarity score
-  let totalScore = 0;
+  let rarityScore=0;
+  let conditionScore=0;
   selected.forEach(div=>{
-    const item = inventory[div.dataset.index];
-    switch(item.rarity){
-      case 'grey': totalScore+=1; break;
-      case 'blue': totalScore+=2; break;
-      case 'purple': totalScore+=3; break;
-      case 'red': totalScore+=4; break;
-      case 'gold': totalScore+=5; break;
-    }
+    const item=inventory[div.dataset.index];
+    const rarityValue={'grey':1,'blue':2,'purple':3,'red':4,'gold':5}[item.rarity];
+    rarityScore+=rarityValue;
+    const conditionValue={'FT':1,'WW':2,'MW':3,'FN':4}[item.condition];
+    conditionScore+=conditionValue;
   });
-
-  // Assign gamble weights based on totalScore
-  let gambleWeights = {
-    grey: Math.max(0, 45 - totalScore*4),
-    blue: Math.max(0, 35 - totalScore*2),
-    purple: Math.max(0, 17 + totalScore*2),
-    red: Math.min(30, totalScore*2),
-    gold: Math.min(5, totalScore*0.5)
-  };
-
-  // Normalize weights
-  const sum = Object.values(gambleWeights).reduce((a,b)=>a+b,0);
-  for(const k in gambleWeights) gambleWeights[k]/=sum;
-
-  // Weighted random function
-  function weightedRarity(){
-    const r=Math.random();
-    let cumulative=0;
-    for(const k in gambleWeights){
-      cumulative+=gambleWeights[k];
-      if(r<cumulative) return k;
-    }
-    return 'grey';
-  }
-
-  const rarity = weightedRarity();
-  const item = getRandomItemForRarity(rarity);
 
   // Remove selected items
-  selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>{
-    inventory.splice(div.dataset.index,1);
-  });
+  selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>inventory.splice(div.dataset.index,1));
 
-  // Add new item
-  inventory.push(item);
+  // Determine new item rarity (weighted by rarityScore)
+  let totalRarity=Math.min(rarityScore/selected.length,5);
+  let newRarity;
+  if(totalRarity<1.5)newRarity='grey';
+  else if(totalRarity<2.5)newRarity='blue';
+  else if(totalRarity<3.5)newRarity='purple';
+  else if(totalRarity<4.2)newRarity='red';
+  else newRarity='gold';
+
+  // Determine new condition (weighted by average conditionScore)
+  let avgCondition=conditionScore/selected.length;
+  let newCondition;
+  if(avgCondition<1.5)newCondition='FT';
+  else if(avgCondition<2.5)newCondition='WW';
+  else if(avgCondition<3.2)newCondition='MW';
+  else newCondition='FN';
+
+  const newItem=getRandomItemForRarity(newRarity);
+  newItem.condition=newCondition;
+
+  inventory.push(newItem);
   updateInventory();
-  alert(`You gambled ${selected.length} items and got: ${item.emoji} ${item.name} (${item.rarity})`);
+  alert(`You gambled ${selected.length} items and got: ${newItem.emoji} ${newItem.name} (${newItem.rarity} ${newItem.condition})`);
 }
 
 spinBtn.addEventListener('click',spinCase);
