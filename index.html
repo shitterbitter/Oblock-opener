@@ -167,19 +167,22 @@ function updateInventory(){
   });
 }
 
-// PERFECT SNAP HORIZONTAL SPIN
+// FIXED SPIN: SNAP + ICON/COLOR MATCH
 function spinCase() {
   spinBtn.disabled = true;
-  const finalItem = getRandomItem();
+  const finalItem = getRandomItem(); // generate final item first
+
   const itemWidth = 80;
-  const visibleSlots = 4; // 320px container
+  const visibleSlots = 4;
   const totalSlots = 20;
   const reelArray = [];
 
-  // Random items
-  for(let i=0;i<totalSlots;i++) reelArray.push(getRandomItem());
+  // Fill reel with mostly random items for visual effect
+  for(let i=0;i<totalSlots;i++){
+    reelArray.push(getRandomItem());
+  }
 
-  // Final item at exact snapping position
+  // Place the final item at the snap position
   const finalIndex = totalSlots - 1;
   reelArray.push(finalItem);
 
@@ -187,7 +190,7 @@ function spinCase() {
   reelEl.innerHTML='';
   reelArray.forEach(item=>{
     const span = document.createElement('span');
-    span.textContent=item.emoji;
+    span.textContent = item.emoji;
     span.className=item.rarity;
     reelEl.appendChild(span);
   });
@@ -205,6 +208,7 @@ function spinCase() {
     if(progress < 1){
       requestAnimationFrame(animate);
     } else {
+      // add final item to inventory
       inventory.push(finalItem);
       updateInventory();
       spinBtn.disabled = false;
