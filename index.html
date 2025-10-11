@@ -43,7 +43,7 @@ h1, h2 {
   flex-direction: row;
   align-items: center;
   height: 100%;
-  transition: transform 2s cubic-bezier(0.25,1,0.5,1);
+  transition: transform 5s cubic-bezier(0.25,1,0.5,1);
 }
 
 .reel span {
@@ -181,13 +181,13 @@ function updateInventory() {
   });
 }
 
+// Generate a horizontal reel sequence with repeating items and final item at end
 function generateReelItems(finalItem){
   const reelItems = [];
-  for(let i=0;i<15;i++){
-    const tempItem = items[Math.floor(Math.random()*items.length)];
-    reelItems.push(tempItem);
+  for(let i=0;i<20;i++){ // 20 items repeating for smooth scroll
+    reelItems.push(items[Math.floor(Math.random()*items.length)]);
   }
-  reelItems.push(finalItem); // final item is at the end, aligned to indicator
+  reelItems.push(finalItem); // final item at the end
   return reelItems;
 }
 
@@ -203,12 +203,9 @@ function spinCase(){
     reelEl.appendChild(span);
   });
 
-  // Calculate scroll distance so final item aligns with center indicator
   const scrollDistance = (reelItems.length - 1) * 80; // 80px per item
-  setTimeout(()=>{
-    reelEl.style.transition = 'transform 2s cubic-bezier(0.25,1,0.5,1)';
-    reelEl.style.transform = `translateX(-${scrollDistance}px)`;
-  }, 100);
+  reelEl.style.transition = 'transform 5s cubic-bezier(0.25,1,0.5,1)';
+  setTimeout(()=>{ reelEl.style.transform = `translateX(-${scrollDistance}px)`; }, 50);
 
   setTimeout(()=>{
     inventory.push(finalItem);
@@ -216,9 +213,10 @@ function spinCase(){
     spinBtn.disabled = false;
     reelEl.style.transition = 'none';
     reelEl.style.transform = 'translateX(0)';
-  }, 2300);
+  }, 5100); // 5 seconds + small buffer
 }
 
+// Gamble mechanics remain the same
 function gambleItems(){
   const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length === 0) return alert("Select items to gamble!");
@@ -246,28 +244,11 @@ function gambleItems(){
   const possible = items.filter(i => i.rarities.includes(finalRarity));
   const newItem = {...possible[Math.floor(Math.random()*possible.length)], rarity: finalRarity};
 
-  // remove selected items
   const indexesToRemove = selected.map(el=>parseInt(el.dataset.index)).sort((a,b)=>b-a);
   indexesToRemove.forEach(i=>inventory.splice(i,1));
 
   inventory.push(newItem);
   updateInventory();
-
-  // Optional: show reel spin for gamble result
-  const reelItems = generateReelItems(newItem);
-  reelEl.innerHTML = '';
-  reelItems.forEach(item=>{
-    const span = document.createElement('span');
-    span.textContent = item.emoji;
-    reelEl.appendChild(span);
-  });
-  const scrollDistance = (reelItems.length - 1) * 80;
-  reelEl.style.transition = 'transform 2s cubic-bezier(0.25,1,0.5,1)';
-  reelEl.style.transform = `translateX(-${scrollDistance}px)`;
-  setTimeout(()=>{
-    reelEl.style.transition = 'none';
-    reelEl.style.transform = 'translateX(0)';
-  }, 2300);
 
   alert("Gambled and received: " + newItem.emoji + " " + newItem.name + " (" + finalRarity + ")");
 }
