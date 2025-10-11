@@ -130,7 +130,6 @@ const items = [
   {name:'Knife', emoji:'🔪', rarities:['gold']}
 ];
 
-// Base probabilities
 const baseRarityWeights = { grey:0.5, blue:0.3, purple:0.15, red:0.04, gold:0.01 };
 let inventory = [];
 
@@ -140,7 +139,7 @@ const spinBtn = document.getElementById('spinBtn');
 const gambleBtn = document.getElementById('gambleBtn');
 
 function weightedRandom(weights) {
-  const r = Math.random();
+  const r=Math.random();
   let sum=0;
   for(let k in weights){ sum+=weights[k]; if(r<sum) return k; }
   return 'grey';
@@ -164,26 +163,26 @@ function updateInventory(){
   });
 }
 
-// Prebuild reel and animate
+// Prebuild reel
 function spinCase(){
   spinBtn.disabled=true;
   const finalItem=getRandomItem();
   reelEl.innerHTML='';
-  const totalSlots=50; // long reel for smooth spin
+  const totalSlots=100; // long reel to avoid disappearing items
   const reelArray=[];
   for(let i=0;i<totalSlots;i++){
     reelArray.push(items[Math.floor(Math.random()*items.length)]);
   }
-  reelArray.push(finalItem); // final item last
+  reelArray.push(finalItem);
   reelArray.forEach(item=>{
     const span=document.createElement('span');
     span.textContent=item.emoji;
     reelEl.appendChild(span);
   });
 
-  // Calculate transform so final item is centered
+  // Transform to center final item
   const centerIndex=totalSlots;
-  const transformX=centerIndex*80 - 120; // 120 = half of container (320/2)
+  const transformX=centerIndex*80 - 160; // 160 = half container width
   setTimeout(()=>{
     reelEl.style.transition='transform 5s cubic-bezier(0.25,1,0.5,1)';
     reelEl.style.transform=`translateX(-${transformX}px)`;
@@ -198,30 +197,18 @@ function spinCase(){
   },5100);
 }
 
-// Gamble system with realistic odds
+// Gambling with stronger scaling by number of items
 function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
 
-  const totalRarity=selected.reduce((sum,el)=>{
-    const item=inventory[el.dataset.index];
-    switch(item.rarity){
-      case 'grey': return sum+1;
-      case 'blue': return sum+2;
-      case 'purple': return sum+3;
-      case 'red': return sum+4;
-      case 'gold': return sum+5;
-    }
-    return sum;
-  },0);
-
-  // Adjusted odds: greys very common, gold extremely rare
+  const totalCount = selected.length;
   let weights={
-    grey: Math.min(0.7,0.5+0.01*totalRarity),
-    blue: Math.min(0.25,0.3+0.005*totalRarity),
-    purple: Math.min(0.15,0.15+0.003*totalRarity),
-    red: Math.min(0.08,0.04+0.001*totalRarity),
-    gold: Math.min(0.02,0.01+0.0005*totalRarity)
+    grey: Math.max(0.4,0.5 - totalCount*0.05),
+    blue: Math.min(0.35,0.3 + totalCount*0.03),
+    purple: Math.min(0.2,0.15 + totalCount*0.02),
+    red: Math.min(0.08,0.04 + totalCount*0.01),
+    gold: Math.min(0.05,0.01 + totalCount*0.005)
   };
 
   const newItem=getRandomItem(weights);
