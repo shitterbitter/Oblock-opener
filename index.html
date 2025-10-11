@@ -175,43 +175,50 @@ function updateInventory(){
   });
 }
 
-// SPIN WITH COLORED ICONS AND PERFECT SNAP
+// SPIN WITH PERFECT SNAP AND MATCHING FINAL ITEM
 function spinCase(){
   spinBtn.disabled = true;
-  const finalItem = getRandomItem();
+  const finalItem = getRandomItem(); // exact item to receive
   reelEl.innerHTML = '';
   const reelLength = 20;
   const reelArray = [];
 
-  for(let i=0;i<reelLength;i++){
+  // Random items for animation
+  for(let i=0; i<reelLength; i++){
     reelArray.push(getRandomItem());
   }
+
+  // Append the final item (matches inventory)
   reelArray.push(finalItem);
 
-  reelArray.forEach(item=>{
+  // Render reel items with colors
+  reelArray.forEach(item => {
     const span = document.createElement('span');
     span.textContent = item.emoji;
-    span.className = item.rarity; // <- color added here
+    span.className = item.rarity;
     reelEl.appendChild(span);
   });
 
+  // Perfect snap calculation
   const itemWidth = 80;
   const containerWidth = 320;
   const finalIndex = reelArray.length - 1;
   const transformX = (finalIndex * itemWidth) - (containerWidth / 2) + (itemWidth / 2);
 
-  setTimeout(()=>{
+  // Start spin
+  setTimeout(() => {
     reelEl.style.transition = 'transform 5s cubic-bezier(0.25,1,0.5,1)';
     reelEl.style.transform = `translateX(-${transformX}px)`;
-  },50);
+  }, 50);
 
-  setTimeout(()=>{
-    inventory.push(finalItem);
+  // Finish spin
+  setTimeout(() => {
+    inventory.push(finalItem); // exact item added to inventory
     updateInventory();
-    spinBtn.disabled=false;
-    reelEl.style.transition='none';
-    reelEl.style.transform='translateX(0)';
-  },5100);
+    spinBtn.disabled = false;
+    reelEl.style.transition = 'none';
+    reelEl.style.transform = 'translateX(0)';
+  }, 5100);
 }
 
 // GAMBLING
