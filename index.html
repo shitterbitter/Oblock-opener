@@ -19,20 +19,20 @@ body {
   padding: 40px 20px;
   min-height: 100vh;
   box-sizing: border-box;
+  text-align: center;
 }
-h1, h2 { text-align: center; margin-bottom: 20px; }
+h1, h2 { margin-bottom: 20px; }
 .roller-container {
   position: relative;
   width: 320px;
   height: 80px;
   overflow: hidden;
-  margin: 0 auto 20px;
+  margin: 20px auto;
   border-radius: 10px;
   background: rgba(255,255,255,0.1);
 }
 .reel {
   display: flex;
-  flex-direction: row;
   align-items: center;
   height: 100%;
   will-change: transform;
@@ -93,7 +93,7 @@ h1, h2 { text-align: center; margin-bottom: 20px; }
 .purple { background-color: #9b59b6; color: #fff; }
 .red { background-color: #e74c3c; color: #fff; }
 .gold { background-color: #ffd700; color: #111; }
-.gamble-section { margin-top: 50px; text-align: center; }
+.gamble-section { margin-top: 50px; }
 </style>
 </head>
 <body>
@@ -103,8 +103,8 @@ h1, h2 { text-align: center; margin-bottom: 20px; }
     <div class="reel" id="reel"></div>
     <div class="indicator"></div>
   </div>
-  <div style="text-align:center;">
-    <button class="btn" id="spinBtn">Spin Case</button>
+  <div>
+    <button class="btn" id="openCaseBtn">Open Case</button>
   </div>
   <h2>Inventory</h2>
   <div class="inventory" id="inventory"></div>
@@ -135,7 +135,7 @@ let inventory = [];
 
 const reelEl = document.getElementById('reel');
 const inventoryEl = document.getElementById('inventory');
-const spinBtn = document.getElementById('spinBtn');
+const openCaseBtn = document.getElementById('openCaseBtn');
 const gambleBtn = document.getElementById('gambleBtn');
 
 function weightedRarity() {
@@ -167,30 +167,26 @@ function updateInventory(){
   });
 }
 
-// FIXED SPIN: SNAP + ICON/COLOR MATCH
+// NEW SPIN FUNCTION WITH 40 RANDOM ITEMS
 function spinCase() {
-  spinBtn.disabled = true;
-  const finalItem = getRandomItem(); // generate final item first
-
+  openCaseBtn.disabled = true;
+  const finalItem = getRandomItem();
   const itemWidth = 80;
   const visibleSlots = 4;
-  const totalSlots = 20;
+  const totalSlots = 40; // 40 items line
   const reelArray = [];
 
-  // Fill reel with mostly random items for visual effect
   for(let i=0;i<totalSlots;i++){
     reelArray.push(getRandomItem());
   }
 
-  // Place the final item at the snap position
   const finalIndex = totalSlots - 1;
-  reelArray.push(finalItem);
+  reelArray.push(finalItem); // final item at end
 
-  // Render items
   reelEl.innerHTML='';
   reelArray.forEach(item=>{
-    const span = document.createElement('span');
-    span.textContent = item.emoji;
+    const span=document.createElement('span');
+    span.textContent=item.emoji;
     span.className=item.rarity;
     reelEl.appendChild(span);
   });
@@ -199,23 +195,18 @@ function spinCase() {
   let start = null;
 
   function animate(timestamp){
-    if(!start) start = timestamp;
-    const progress = Math.min((timestamp - start)/duration,1);
-    const ease = 1 - Math.pow(1-progress,3); // ease out
+    if(!start) start=timestamp;
+    const progress=Math.min((timestamp-start)/duration,1);
+    const ease=1 - Math.pow(1-progress,3);
     const offset = ease * (finalIndex * itemWidth - (visibleSlots/2*itemWidth - itemWidth/2));
     reelEl.style.transform = `translateX(-${offset}px)`;
 
     if(progress < 1){
       requestAnimationFrame(animate);
     } else {
-      // add final item to inventory
       inventory.push(finalItem);
       updateInventory();
-      spinBtn.disabled = false;
-
-      // Reset reel for next spin
-      reelEl.style.transition = 'none';
-      reelEl.style.transform = 'translateX(0)';
+      openCaseBtn.disabled = false;
     }
   }
 
@@ -262,9 +253,8 @@ function gambleItems(){
   alert("Gambled and received: "+newItem.emoji+" "+newItem.name+" ("+rarity+")");
 }
 
-spinBtn.addEventListener('click',spinCase);
+openCaseBtn.addEventListener('click',spinCase);
 gambleBtn.addEventListener('click',gambleItems);
-
 updateInventory();
 </script>
 </body>
