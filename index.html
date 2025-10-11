@@ -11,10 +11,10 @@
     font-family: 'Inter', sans-serif;
     background: url('https://upload.wikimedia.org/wikipedia/commons/8/81/Parkway_Gardens_Chicago.jpg') no-repeat center center fixed;
     background-size: cover;
-    filter: blur(8px);
     height: 100vh;
     overflow: hidden;
   }
+
   .overlay {
     position: fixed;
     inset: 0;
@@ -29,11 +29,35 @@
 
   h1 { margin-bottom: 20px; }
 
-  .roller {
+  .roller-container {
     display: flex;
-    gap: 15px;
+    gap: 10px;
     margin-bottom: 20px;
-    font-size: 3rem;
+  }
+
+  .roller {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    position: relative;
+  }
+
+  .reel {
+    display: flex;
+    flex-direction: column;
+    transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .reel span {
+    height: 80px;
+    display: flex;
+    align-items: center;
     justify-content: center;
   }
 
@@ -76,15 +100,18 @@
 <body>
 <div class="overlay">
   <h1>O Block Case Opening</h1>
-  <div class="roller" id="roller">
-    <span>❓</span>
-    <span>❓</span>
-    <span>❓</span>
+
+  <div class="roller-container">
+    <div class="roller" id="roller1"><div class="reel"></div></div>
+    <div class="roller" id="roller2"><div class="reel"></div></div>
+    <div class="roller" id="roller3"><div class="reel"></div></div>
   </div>
+
   <div>
     <button class="btn" id="spinBtn">Spin Case</button>
     <button class="btn" id="gambleBtn">Gamble Items</button>
   </div>
+
   <h2>Inventory</h2>
   <div class="inventory" id="inventory"></div>
 </div>
@@ -100,7 +127,6 @@ const items = [
   {name:'Knife', emoji:'🔪', rarities:['gold']}
 ];
 
-// Rarity probabilities for spinning
 const rarityWeights = {
   grey: 0.4,
   blue: 0.3,
@@ -109,9 +135,14 @@ const rarityWeights = {
   gold: 0.02
 };
 
-const inventory = [];
+let inventory = [];
 
-const rollerEl = document.getElementById('roller');
+const rollerEls = [
+  document.getElementById('roller1').querySelector('.reel'),
+  document.getElementById('roller2').querySelector('.reel'),
+  document.getElementById('roller3').querySelector('.reel')
+];
+
 const inventoryEl = document.getElementById('inventory');
 const spinBtn = document.getElementById('spinBtn');
 const gambleBtn = document.getElementById('gambleBtn');
@@ -135,7 +166,7 @@ function getRandomItem() {
 
 function updateInventory() {
   inventoryEl.innerHTML = '';
-  inventory.forEach((item,i)=>{
+  inventory.forEach((item)=>{
     const div = document.createElement('div');
     div.className = 'item ' + item.rarity;
     div.textContent = item.emoji + ' ' + item.name;
@@ -145,29 +176,47 @@ function updateInventory() {
 
 function spinCase() {
   spinBtn.disabled = true;
-  let spins = 20;
-  const rollerSpins = setInterval(()=>{
-    rollerEl.children.forEach((slot,i)=>{
+
+  // Generate final items for each reel
+  const finalItems = [getRandomItem(), getRandomItem(), getRandomItem()];
+  
+  rollerEls.forEach((reel, index)=>{
+    reel.innerHTML = ''; // clear previous
+    // Add several random items for spinning animation
+    for(let i=0;i<10;i++){
       const tempItem = items[Math.floor(Math.random()*items.length)];
-      slot.textContent = tempItem.emoji;
-    });
-    spins--;
-    if(spins<=0){
-      clearInterval(rollerSpins);
-      const newItem = getRandomItem();
-      rollerEl.children.forEach((slot,i)=>{
-        slot.textContent = newItem.emoji;
-      });
-      inventory.push(newItem);
-      updateInventory();
-      spinBtn.disabled = false;
+      const span = document.createElement('span');
+      span.textContent = tempItem.emoji;
+      reel.appendChild(span);
     }
-  },100);
+    // Add final item at the end
+    const finalSpan = document.createElement('span');
+    finalSpan.textContent = finalItems[index].emoji;
+    reel.appendChild(finalSpan);
+
+    // Animate reel
+    setTimeout(()=>{
+      reel.style.transition = 'transform 2s cubic-bezier(0.25, 1, 0.5, 1)';
+      reel.style.transform = `translateY(-${80*10}px)`; // scroll 10 items + final
+    }, index*200); // staggered spin
+  });
+
+  // After animation completes, add items to inventory
+  setTimeout(()=>{
+    inventory.push(...finalItems);
+    updateInventory();
+    spinBtn.disabled = false;
+    // Reset reel positions for next spin
+    rollerEls.forEach(reel=>{
+      reel.style.transition = 'none';
+      reel.style.transform = 'translateY(0)';
+    });
+  }, 3000);
 }
 
 function gambleItems() {
   if(inventory.length===0) return alert("No items to gamble!");
-  // Take all inventory items for simplicity
+  
   const totalRarity = inventory.reduce((sum,i)=>{
     switch(i.rarity){
       case 'grey': return sum+1;
@@ -179,7 +228,6 @@ function gambleItems() {
     return sum;
   },0);
 
-  // Higher total rarity increases chance for gold/red
   let weights = {...rarityWeights};
   weights.gold = Math.min(0.5, 0.02 + totalRarity*0.03);
   weights.red = Math.min(0.4, 0.08 + totalRarity*0.02);
@@ -196,6 +244,7 @@ function gambleItems() {
 
 spinBtn.addEventListener('click', spinCase);
 gambleBtn.addEventListener('click', gambleItems);
+
 updateInventory();
 </script>
 </body>
