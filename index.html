@@ -48,6 +48,9 @@ h1, h2 {
   justify-content: center;
   font-size: 2rem;
   flex-shrink: 0;
+  border-radius: 8px;
+  margin: 0 2px;
+  font-weight: 800;
 }
 .indicator {
   position: absolute;
@@ -172,12 +175,12 @@ function updateInventory(){
   });
 }
 
-// PERFECT SNAP SPIN
+// SPIN WITH COLORED ICONS AND PERFECT SNAP
 function spinCase(){
   spinBtn.disabled = true;
   const finalItem = getRandomItem();
   reelEl.innerHTML = '';
-  const reelLength = 20; // random items before final
+  const reelLength = 20;
   const reelArray = [];
 
   for(let i=0;i<reelLength;i++){
@@ -186,8 +189,9 @@ function spinCase(){
   reelArray.push(finalItem);
 
   reelArray.forEach(item=>{
-    const span=document.createElement('span');
-    span.textContent=item.emoji;
+    const span = document.createElement('span');
+    span.textContent = item.emoji;
+    span.className = item.rarity; // <- color added here
     reelEl.appendChild(span);
   });
 
@@ -210,7 +214,7 @@ function spinCase(){
   },5100);
 }
 
-// Gambling
+// GAMBLING
 function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
@@ -257,4 +261,3 @@ updateInventory();
 </script>
 </body>
 </html>
-
