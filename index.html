@@ -130,6 +130,7 @@ const items = [
   {name:'Knife', emoji:'🔪', rarities:['gold']}
 ];
 
+// Base rarity probabilities
 const baseRarityWeights = { grey:0.5, blue:0.3, purple:0.15, red:0.04, gold:0.01 };
 let inventory = [];
 
@@ -138,14 +139,14 @@ const inventoryEl = document.getElementById('inventory');
 const spinBtn = document.getElementById('spinBtn');
 const gambleBtn = document.getElementById('gambleBtn');
 
-function weightedRandom(weights) {
+function weightedRandom(weights){
   const r=Math.random();
   let sum=0;
   for(let k in weights){ sum+=weights[k]; if(r<sum) return k; }
   return 'grey';
 }
 
-function getRandomItem(rarityWeights=baseRarityWeights) {
+function getRandomItem(rarityWeights=baseRarityWeights){
   const rarity = weightedRandom(rarityWeights);
   const possible = items.filter(i=>i.rarities.includes(rarity));
   return {...possible[Math.floor(Math.random()*possible.length)], rarity};
@@ -163,14 +164,14 @@ function updateInventory(){
   });
 }
 
-// Prebuild reel
+// Spin
 function spinCase(){
   spinBtn.disabled=true;
   const finalItem=getRandomItem();
   reelEl.innerHTML='';
-  const totalSlots=100; // long reel to avoid disappearing items
+  const reelLength=30;
   const reelArray=[];
-  for(let i=0;i<totalSlots;i++){
+  for(let i=0;i<reelLength;i++){
     reelArray.push(items[Math.floor(Math.random()*items.length)]);
   }
   reelArray.push(finalItem);
@@ -180,8 +181,8 @@ function spinCase(){
     reelEl.appendChild(span);
   });
 
-  // Transform to center final item
-  const centerIndex=totalSlots;
+  // Compute transform so final item aligns perfectly under indicator
+  const centerIndex=reelLength;
   const transformX=centerIndex*80 - 160; // 160 = half container width
   setTimeout(()=>{
     reelEl.style.transition='transform 5s cubic-bezier(0.25,1,0.5,1)';
@@ -197,19 +198,29 @@ function spinCase(){
   },5100);
 }
 
-// Gambling with stronger scaling by number of items
+// Gamble
 function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
 
-  const totalCount = selected.length;
+  const n=selected.length;
   let weights={
-    grey: Math.max(0.4,0.5 - totalCount*0.05),
-    blue: Math.min(0.35,0.3 + totalCount*0.03),
-    purple: Math.min(0.2,0.15 + totalCount*0.02),
-    red: Math.min(0.08,0.04 + totalCount*0.01),
-    gold: Math.min(0.05,0.01 + totalCount*0.005)
+    grey:0.5,
+    blue:0.3,
+    purple:0.15,
+    red:0.04,
+    gold:0.01
   };
+  // Slight boost based on number of items
+  weights.blue += n*0.02;
+  weights.purple += n*0.01;
+  weights.red += n*0.005;
+  weights.gold += n*0.002;
+
+  // Normalize
+  let sum=0;
+  for(let k in weights) sum+=weights[k];
+  for(let k in weights) weights[k] /= sum;
 
   const newItem=getRandomItem(weights);
   const indexesToRemove=selected.map(el=>parseInt(el.dataset.index)).sort((a,b)=>b-a);
