@@ -175,23 +175,30 @@ function updateInventory(){
   });
 }
 
-// SPIN WITH PERFECT SNAP AND MATCHING FINAL ITEM
-function spinCase(){
+// ROBUST SPIN: perfect snap, colors match inventory, 5s horizontal spin
+function spinCase() {
   spinBtn.disabled = true;
-  const finalItem = getRandomItem(); // exact item to receive
+  const finalItem = getRandomItem();
   reelEl.innerHTML = '';
-  const reelLength = 20;
+
+  const itemWidth = 80;
+  const containerWidth = 320;
+  const visibleSlots = Math.floor(containerWidth / itemWidth);
+  const totalSlots = 40;
+
   const reelArray = [];
 
   // Random items for animation
-  for(let i=0; i<reelLength; i++){
+  for (let i = 0; i < totalSlots - 1; i++) {
     reelArray.push(getRandomItem());
   }
 
-  // Append the final item (matches inventory)
-  reelArray.push(finalItem);
+  // Append final item multiple times for perfect snap
+  for (let i = 0; i < visibleSlots; i++) {
+    reelArray.push(finalItem);
+  }
 
-  // Render reel items with colors
+  // Render reel items
   reelArray.forEach(item => {
     const span = document.createElement('span');
     span.textContent = item.emoji;
@@ -199,21 +206,18 @@ function spinCase(){
     reelEl.appendChild(span);
   });
 
-  // Perfect snap calculation
-  const itemWidth = 80;
-  const containerWidth = 320;
-  const finalIndex = reelArray.length - 1;
-  const transformX = (finalIndex * itemWidth) - (containerWidth / 2) + (itemWidth / 2);
+  // Calculate exact transform for final snap
+  const finalIndex = reelArray.length - Math.ceil(visibleSlots / 2) - 1;
+  const transformX = finalIndex * itemWidth;
 
-  // Start spin
   setTimeout(() => {
     reelEl.style.transition = 'transform 5s cubic-bezier(0.25,1,0.5,1)';
     reelEl.style.transform = `translateX(-${transformX}px)`;
   }, 50);
 
-  // Finish spin
+  // After spin ends
   setTimeout(() => {
-    inventory.push(finalItem); // exact item added to inventory
+    inventory.push(finalItem);
     updateInventory();
     spinBtn.disabled = false;
     reelEl.style.transition = 'none';
