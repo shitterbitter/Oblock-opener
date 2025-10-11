@@ -172,29 +172,33 @@ function updateInventory(){
   });
 }
 
+// PERFECT SNAP SPIN
 function spinCase(){
-  spinBtn.disabled=true;
+  spinBtn.disabled = true;
   const finalItem = getRandomItem();
-  reelEl.innerHTML='';
-  const reelLength = 20;
-  const reelArray=[];
+  reelEl.innerHTML = '';
+  const reelLength = 20; // random items before final
+  const reelArray = [];
+
   for(let i=0;i<reelLength;i++){
-    const randomItem = getRandomItem();
-    reelArray.push(randomItem);
+    reelArray.push(getRandomItem());
   }
   reelArray.push(finalItem);
+
   reelArray.forEach(item=>{
     const span=document.createElement('span');
     span.textContent=item.emoji;
     reelEl.appendChild(span);
   });
 
-  const centerIndex = reelLength;
-  const transformX = centerIndex*80 - 160; // center indicator
+  const itemWidth = 80;
+  const containerWidth = 320;
+  const finalIndex = reelArray.length - 1;
+  const transformX = (finalIndex * itemWidth) - (containerWidth / 2) + (itemWidth / 2);
 
   setTimeout(()=>{
-    reelEl.style.transition='transform 5s cubic-bezier(0.25,1,0.5,1)';
-    reelEl.style.transform=`translateX(-${transformX}px)`;
+    reelEl.style.transition = 'transform 5s cubic-bezier(0.25,1,0.5,1)';
+    reelEl.style.transform = `translateX(-${transformX}px)`;
   },50);
 
   setTimeout(()=>{
@@ -206,12 +210,12 @@ function spinCase(){
   },5100);
 }
 
+// Gambling
 function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
   const n = selected.length;
 
-  // Slight odds increase per item
   const odds = {
     grey: 0.45,
     blue: 0.35 + n*0.01,
@@ -219,13 +223,14 @@ function gambleItems(){
     red: 0.025 + n*0.001,
     gold: 0.005 + n*0.0005
   };
+
   let sum=0;
   for(const k in odds) sum+=odds[k];
   for(const k in odds) odds[k]/=sum;
 
   function weightedGambleRarity(){
-    const r = Math.random();
-    let total =0;
+    const r=Math.random();
+    let total=0;
     for(const k in odds){
       total+=odds[k];
       if(r<total) return k;
@@ -237,7 +242,6 @@ function gambleItems(){
   const pool = itemsByRarity[rarity];
   const newItem = pool[Math.floor(Math.random()*pool.length)];
 
-  // Remove selected
   const indexes = selected.map(el=>parseInt(el.dataset.index)).sort((a,b)=>b-a);
   indexes.forEach(i=>inventory.splice(i,1));
 
@@ -253,3 +257,4 @@ updateInventory();
 </script>
 </body>
 </html>
+
