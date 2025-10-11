@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Block Case Opening</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/8/81/Parkway_Gardens_Chicago.jpg') no-repeat center center fixed;
+    background-size: cover;
+    filter: blur(8px);
+    height: 100vh;
+    overflow: hidden;
+  }
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    color: #fff;
+  }
+
+  h1 { margin-bottom: 20px; }
+
+  .roller {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    font-size: 3rem;
+    justify-content: center;
+  }
+
+  .btn {
+    background: linear-gradient(180deg,#ffd36b,#b8860b);
+    color:#111;
+    padding:12px 20px;
+    border-radius:14px;
+    border:none;
+    font-weight:800;
+    cursor:pointer;
+    margin:5px;
+    font-size: 1rem;
+  }
+
+  .inventory {
+    margin-top: 20px;
+    max-width: 600px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .item {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 60px;
+  }
+
+  .grey { background-color: #7d7d7d; color: #fff; }
+  .blue { background-color: #3498db; color: #fff; }
+  .purple { background-color: #9b59b6; color: #fff; }
+  .red { background-color: #e74c3c; color: #fff; }
+  .gold { background-color: #ffd700; color: #111; }
+</style>
+</head>
+<body>
+<div class="overlay">
+  <h1>O Block Case Opening</h1>
+  <div class="roller" id="roller">
+    <span>❓</span>
+    <span>❓</span>
+    <span>❓</span>
+  </div>
+  <div>
+    <button class="btn" id="spinBtn">Spin Case</button>
+    <button class="btn" id="gambleBtn">Gamble Items</button>
+  </div>
+  <h2>Inventory</h2>
+  <div class="inventory" id="inventory"></div>
+</div>
+
+<script>
+const items = [
+  {name:'Pistol', emoji:'🔫', rarities:['grey','blue','purple']},
+  {name:'SMG', emoji:'🟡', rarities:['blue','purple']},
+  {name:'Shotgun', emoji:'🛠️', rarities:['grey','blue','purple']},
+  {name:'AR', emoji:'🔰', rarities:['purple','red']},
+  {name:'Sniper', emoji:'🎯', rarities:['red']},
+  {name:'Gloves', emoji:'🧤', rarities:['gold']},
+  {name:'Knife', emoji:'🔪', rarities:['gold']}
+];
+
+// Rarity probabilities for spinning
+const rarityWeights = {
+  grey: 0.4,
+  blue: 0.3,
+  purple: 0.2,
+  red: 0.08,
+  gold: 0.02
+};
+
+const inventory = [];
+
+const rollerEl = document.getElementById('roller');
+const inventoryEl = document.getElementById('inventory');
+const spinBtn = document.getElementById('spinBtn');
+const gambleBtn = document.getElementById('gambleBtn');
+
+function weightedRandom(weights) {
+  const r = Math.random();
+  let sum=0;
+  for (let key in weights) {
+    sum += weights[key];
+    if (r < sum) return key;
+  }
+  return 'grey';
+}
+
+function getRandomItem() {
+  const rarity = weightedRandom(rarityWeights);
+  const possible = items.filter(i => i.rarities.includes(rarity));
+  const item = possible[Math.floor(Math.random()*possible.length)];
+  return {...item, rarity};
+}
+
+function updateInventory() {
+  inventoryEl.innerHTML = '';
+  inventory.forEach((item,i)=>{
+    const div = document.createElement('div');
+    div.className = 'item ' + item.rarity;
+    div.textContent = item.emoji + ' ' + item.name;
+    inventoryEl.appendChild(div);
+  });
+}
+
+function spinCase() {
+  spinBtn.disabled = true;
+  let spins = 20;
+  const rollerSpins = setInterval(()=>{
+    rollerEl.children.forEach((slot,i)=>{
+      const tempItem = items[Math.floor(Math.random()*items.length)];
+      slot.textContent = tempItem.emoji;
+    });
+    spins--;
+    if(spins<=0){
+      clearInterval(rollerSpins);
+      const newItem = getRandomItem();
+      rollerEl.children.forEach((slot,i)=>{
+        slot.textContent = newItem.emoji;
+      });
+      inventory.push(newItem);
+      updateInventory();
+      spinBtn.disabled = false;
+    }
+  },100);
+}
+
+function gambleItems() {
+  if(inventory.length===0) return alert("No items to gamble!");
+  // Take all inventory items for simplicity
+  const totalRarity = inventory.reduce((sum,i)=>{
+    switch(i.rarity){
+      case 'grey': return sum+1;
+      case 'blue': return sum+2;
+      case 'purple': return sum+3;
+      case 'red': return sum+4;
+      case 'gold': return sum+5;
+    }
+    return sum;
+  },0);
+
+  // Higher total rarity increases chance for gold/red
+  let weights = {...rarityWeights};
+  weights.gold = Math.min(0.5, 0.02 + totalRarity*0.03);
+  weights.red = Math.min(0.4, 0.08 + totalRarity*0.02);
+  weights.grey = 0.4 - totalRarity*0.02;
+  weights.blue = 0.3 - totalRarity*0.01;
+  weights.purple = 0.2 - totalRarity*0.01;
+
+  const newItem = getRandomItem();
+  newItem.rarity = weightedRandom(weights);
+  inventory.push(newItem);
+  updateInventory();
+  alert("Gambled and got: " + newItem.emoji + " " + newItem.name + " (" + newItem.rarity + ")");
+}
+
+spinBtn.addEventListener('click', spinCase);
+gambleBtn.addEventListener('click', gambleItems);
+updateInventory();
+</script>
+</body>
+</html>
