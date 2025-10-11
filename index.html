@@ -10,7 +10,7 @@ body {
   font-family: 'Inter', sans-serif;
   background: url('https://upload.wikimedia.org/wikipedia/commons/8/81/Parkway_Gardens_Chicago.jpg') no-repeat center center fixed;
   background-size: cover;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 .overlay {
   position: relative;
@@ -21,17 +21,32 @@ body {
   box-sizing: border-box;
 }
 h1, h2 { text-align: center; margin-bottom: 20px; }
-#canvasContainer {
+.roller-container {
   position: relative;
   width: 320px;
   height: 80px;
+  overflow: hidden;
   margin: 0 auto 20px;
   border-radius: 10px;
-  overflow: hidden;
   background: rgba(255,255,255,0.1);
 }
-#reelCanvas {
-  display: block;
+.reel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+  will-change: transform;
+}
+.reel span {
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+  border-radius: 8px;
+  margin: 0 2px;
+  font-weight: 800;
 }
 .indicator {
   position: absolute;
@@ -84,8 +99,8 @@ h1, h2 { text-align: center; margin-bottom: 20px; }
 <body>
 <div class="overlay">
   <h1>O Block Case Opening</h1>
-  <div id="canvasContainer">
-    <canvas id="reelCanvas" width="320" height="80"></canvas>
+  <div class="roller-container">
+    <div class="reel" id="reel"></div>
     <div class="indicator"></div>
   </div>
   <div style="text-align:center;">
@@ -117,11 +132,11 @@ const rarityChances = [
 ];
 
 let inventory = [];
-const canvas = document.getElementById('reelCanvas');
-const ctx = canvas.getContext('2d');
+
+const reelEl = document.getElementById('reel');
+const inventoryEl = document.getElementById('inventory');
 const spinBtn = document.getElementById('spinBtn');
 const gambleBtn = document.getElementById('gambleBtn');
-const inventoryEl = document.getElementById('inventory');
 
 function weightedRarity() {
   const r = Math.random();
@@ -152,62 +167,55 @@ function updateInventory(){
   });
 }
 
-// CANVAS SPIN
-function spinCase(){
+// PERFECT SNAP HORIZONTAL SPIN
+function spinCase() {
   spinBtn.disabled = true;
   const finalItem = getRandomItem();
   const itemWidth = 80;
-  const totalItems = 30;
-  let items = [];
-  for(let i=0;i<totalItems;i++){
-    items.push(getRandomItem());
-  }
-  items.push(finalItem); // final item at end
+  const visibleSlots = 4; // 320px container
+  const totalSlots = 20;
+  const reelArray = [];
 
-  let posX = 0;
-  let start = null;
+  // Random items
+  for(let i=0;i<totalSlots;i++) reelArray.push(getRandomItem());
+
+  // Final item at exact snapping position
+  const finalIndex = totalSlots - 1;
+  reelArray.push(finalItem);
+
+  // Render items
+  reelEl.innerHTML='';
+  reelArray.forEach(item=>{
+    const span = document.createElement('span');
+    span.textContent=item.emoji;
+    span.className=item.rarity;
+    reelEl.appendChild(span);
+  });
+
   const duration = 5000;
+  let start = null;
 
   function animate(timestamp){
-    if(!start) start=timestamp;
-    const progress = Math.min((timestamp-start)/duration,1);
-    const ease = 1 - Math.pow(1-progress,3); // easing out
-    posX = ease * (itemWidth * (items.length - 1) - (canvas.width/2 - itemWidth/2));
+    if(!start) start = timestamp;
+    const progress = Math.min((timestamp - start)/duration,1);
+    const ease = 1 - Math.pow(1-progress,3); // ease out
+    const offset = ease * (finalIndex * itemWidth - (visibleSlots/2*itemWidth - itemWidth/2));
+    reelEl.style.transform = `translateX(-${offset}px)`;
 
-    // draw canvas
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    items.forEach((item,i)=>{
-      const x = i*itemWidth - posX;
-      ctx.fillStyle = getColor(item.rarity);
-      ctx.fillRect(x+2, 10, itemWidth-4, 60);
-      ctx.fillStyle = "#fff";
-      ctx.font="30px sans-serif";
-      ctx.textAlign="center";
-      ctx.textBaseline="middle";
-      ctx.fillText(item.emoji,x+itemWidth/2,40);
-    });
-
-    if(progress<1){
+    if(progress < 1){
       requestAnimationFrame(animate);
-    }else{
+    } else {
       inventory.push(finalItem);
       updateInventory();
-      spinBtn.disabled=false;
+      spinBtn.disabled = false;
+
+      // Reset reel for next spin
+      reelEl.style.transition = 'none';
+      reelEl.style.transform = 'translateX(0)';
     }
   }
 
   requestAnimationFrame(animate);
-}
-
-function getColor(rarity){
-  switch(rarity){
-    case 'grey': return '#7d7d7d';
-    case 'blue': return '#3498db';
-    case 'purple': return '#9b59b6';
-    case 'red': return '#e74c3c';
-    case 'gold': return '#ffd700';
-    default: return '#fff';
-  }
 }
 
 // GAMBLING
