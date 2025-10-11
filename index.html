@@ -30,23 +30,24 @@ h1, h2 {
 
 .roller-container {
   position: relative;
-  width: 80px;
-  height: 120px;
+  width: 300px;
+  height: 80px;
   overflow: hidden;
+  margin: 0 auto 20px;
   border-radius: 10px;
   background: rgba(255,255,255,0.1);
-  margin: 0 auto 20px;
 }
 
 .reel {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  height: 100%;
   transition: transform 2s cubic-bezier(0.25,1,0.5,1);
 }
 
 .reel span {
-  height: 40px;
+  min-width: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,11 +56,11 @@ h1, h2 {
 
 .indicator {
   position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 40px;
-  margin-top: -20px;
+  top: 0;
+  left: 50%;
+  width: 80px;
+  height: 100%;
+  margin-left: -40px;
   border: 2px solid #ffd36b;
   pointer-events: none;
 }
@@ -119,6 +120,7 @@ h1, h2 {
     <div class="reel" id="reel"></div>
     <div class="indicator"></div>
   </div>
+
   <div style="text-align:center;">
     <button class="btn" id="spinBtn">Spin Case</button>
   </div>
@@ -181,11 +183,11 @@ function updateInventory() {
 
 function generateReelItems(finalItem){
   const reelItems = [];
-  for(let i=0;i<10;i++){
+  for(let i=0;i<15;i++){
     const tempItem = items[Math.floor(Math.random()*items.length)];
     reelItems.push(tempItem);
   }
-  reelItems.push(finalItem);
+  reelItems.push(finalItem); // final item is at the end, aligned to indicator
   return reelItems;
 }
 
@@ -193,29 +195,34 @@ function spinCase(){
   spinBtn.disabled = true;
   const finalItem = getRandomItem();
   const reelItems = generateReelItems(finalItem);
+
   reelEl.innerHTML = '';
   reelItems.forEach(item=>{
     const span = document.createElement('span');
     span.textContent = item.emoji;
     reelEl.appendChild(span);
   });
+
+  // Calculate scroll distance so final item aligns with center indicator
+  const scrollDistance = (reelItems.length - 1) * 80; // 80px per item
   setTimeout(()=>{
     reelEl.style.transition = 'transform 2s cubic-bezier(0.25,1,0.5,1)';
-    reelEl.style.transform = `translateY(-${40*10}px)`;
-  },100);
+    reelEl.style.transform = `translateX(-${scrollDistance}px)`;
+  }, 100);
+
   setTimeout(()=>{
     inventory.push(finalItem);
     updateInventory();
     spinBtn.disabled = false;
     reelEl.style.transition = 'none';
-    reelEl.style.transform = 'translateY(0)';
-  },2300);
+    reelEl.style.transform = 'translateX(0)';
+  }, 2300);
 }
 
 function gambleItems(){
   const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length === 0) return alert("Select items to gamble!");
-  // calculate total rarity
+
   const totalRarity = selected.reduce((sum, el)=>{
     const item = inventory[el.dataset.index];
     switch(item.rarity){
@@ -227,12 +234,14 @@ function gambleItems(){
     }
     return sum;
   },0);
+
   let weights = {...rarityWeights};
   weights.gold = Math.min(0.5,0.02+totalRarity*0.03);
   weights.red = Math.min(0.4,0.08+totalRarity*0.02);
   weights.grey = Math.max(0,0.4-totalRarity*0.02);
   weights.blue = Math.max(0,0.3-totalRarity*0.01);
   weights.purple = Math.max(0,0.2-totalRarity*0.01);
+
   const finalRarity = weightedRandom(weights);
   const possible = items.filter(i => i.rarities.includes(finalRarity));
   const newItem = {...possible[Math.floor(Math.random()*possible.length)], rarity: finalRarity};
@@ -243,6 +252,22 @@ function gambleItems(){
 
   inventory.push(newItem);
   updateInventory();
+
+  // Optional: show reel spin for gamble result
+  const reelItems = generateReelItems(newItem);
+  reelEl.innerHTML = '';
+  reelItems.forEach(item=>{
+    const span = document.createElement('span');
+    span.textContent = item.emoji;
+    reelEl.appendChild(span);
+  });
+  const scrollDistance = (reelItems.length - 1) * 80;
+  reelEl.style.transition = 'transform 2s cubic-bezier(0.25,1,0.5,1)';
+  reelEl.style.transform = `translateX(-${scrollDistance}px)`;
+  setTimeout(()=>{
+    reelEl.style.transition = 'none';
+    reelEl.style.transform = 'translateX(0)';
+  }, 2300);
 
   alert("Gambled and received: " + newItem.emoji + " " + newItem.name + " (" + finalRarity + ")");
 }
