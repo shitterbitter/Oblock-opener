@@ -175,7 +175,7 @@ function updateInventory(){
   });
 }
 
-// ROBUST SPIN: perfect snap, colors match inventory, 5s horizontal spin
+// PERFECT SNAP SPIN
 function spinCase() {
   spinBtn.disabled = true;
   const finalItem = getRandomItem();
@@ -184,21 +184,20 @@ function spinCase() {
   const itemWidth = 80;
   const containerWidth = 320;
   const visibleSlots = Math.floor(containerWidth / itemWidth);
-  const totalSlots = 40;
+  const totalSlots = 30;
 
   const reelArray = [];
 
-  // Random items for animation
-  for (let i = 0; i < totalSlots - 1; i++) {
+  // random items
+  for (let i = 0; i < totalSlots; i++) {
     reelArray.push(getRandomItem());
   }
 
-  // Append final item multiple times for perfect snap
-  for (let i = 0; i < visibleSlots; i++) {
-    reelArray.push(finalItem);
-  }
+  // Insert final item at exact position for snapping
+  const finalIndex = totalSlots; // next slot
+  reelArray.splice(finalIndex, 0, finalItem);
 
-  // Render reel items
+  // Render reel
   reelArray.forEach(item => {
     const span = document.createElement('span');
     span.textContent = item.emoji;
@@ -206,16 +205,14 @@ function spinCase() {
     reelEl.appendChild(span);
   });
 
-  // Calculate exact transform for final snap
-  const finalIndex = reelArray.length - Math.ceil(visibleSlots / 2) - 1;
-  const transformX = finalIndex * itemWidth;
+  // Transform to align final item under indicator
+  const transformX = finalIndex * itemWidth - (containerWidth / 2) + (itemWidth / 2);
 
   setTimeout(() => {
     reelEl.style.transition = 'transform 5s cubic-bezier(0.25,1,0.5,1)';
     reelEl.style.transform = `translateX(-${transformX}px)`;
   }, 50);
 
-  // After spin ends
   setTimeout(() => {
     inventory.push(finalItem);
     updateInventory();
