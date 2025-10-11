@@ -14,7 +14,6 @@ body {
   height: 100vh;
   overflow-x: hidden;
 }
-
 .overlay {
   position: relative;
   background: rgba(0,0,0,0.65);
@@ -22,30 +21,26 @@ body {
   padding: 40px 20px;
   min-height: 100vh;
 }
-
 h1, h2 {
   text-align: center;
   margin-bottom: 20px;
 }
-
 .roller-container {
   position: relative;
-  width: 300px;
+  width: 320px;
   height: 80px;
   overflow: hidden;
   margin: 0 auto 20px;
   border-radius: 10px;
   background: rgba(255,255,255,0.1);
 }
-
 .reel {
   display: flex;
   flex-direction: row;
   align-items: center;
   height: 100%;
-  transition: transform 5s cubic-bezier(0.25,1,0.5,1);
+  will-change: transform;
 }
-
 .reel span {
   min-width: 80px;
   display: flex;
@@ -53,7 +48,6 @@ h1, h2 {
   justify-content: center;
   font-size: 2rem;
 }
-
 .indicator {
   position: absolute;
   top: 0;
@@ -64,7 +58,6 @@ h1, h2 {
   border: 2px solid #ffd36b;
   pointer-events: none;
 }
-
 .btn {
   background: linear-gradient(180deg,#ffd36b,#b8860b);
   color:#111;
@@ -76,7 +69,6 @@ h1, h2 {
   margin:5px;
   font-size: 1rem;
 }
-
 .inventory {
   margin-top: 20px;
   max-width: 600px;
@@ -85,7 +77,6 @@ h1, h2 {
   gap: 10px;
   justify-content: center;
 }
-
 .item {
   padding: 8px 12px;
   border-radius: 8px;
@@ -95,17 +86,14 @@ h1, h2 {
   cursor: pointer;
   user-select: none;
 }
-
 .item.selected {
   outline: 2px solid #ffd36b;
 }
-
 .grey { background-color: #7d7d7d; color: #fff; }
 .blue { background-color: #3498db; color: #fff; }
 .purple { background-color: #9b59b6; color: #fff; }
 .red { background-color: #e74c3c; color: #fff; }
 .gold { background-color: #ffd700; color: #111; }
-
 .gamble-section {
   margin-top: 50px;
   text-align: center;
@@ -115,19 +103,15 @@ h1, h2 {
 <body>
 <div class="overlay">
   <h1>O Block Case Opening</h1>
-
   <div class="roller-container">
     <div class="reel" id="reel"></div>
     <div class="indicator"></div>
   </div>
-
   <div style="text-align:center;">
     <button class="btn" id="spinBtn">Spin Case</button>
   </div>
-
   <h2>Inventory</h2>
   <div class="inventory" id="inventory"></div>
-
   <div class="gamble-section">
     <h2>Gamble Selected Items</h2>
     <button class="btn" id="gambleBtn">Gamble</button>
@@ -145,7 +129,7 @@ const items = [
   {name:'Knife', emoji:'🔪', rarities:['gold']}
 ];
 
-const rarityWeights = { grey: 0.4, blue: 0.3, purple: 0.2, red: 0.08, gold: 0.02 };
+const baseRarityWeights = { grey: 0.5, blue: 0.25, purple: 0.15, red: 0.08, gold: 0.02 };
 let inventory = [];
 
 const reelEl = document.getElementById('reel');
@@ -164,7 +148,7 @@ function weightedRandom(weights) {
 }
 
 function getRandomItem() {
-  const rarity = weightedRandom(rarityWeights);
+  const rarity = weightedRandom(baseRarityWeights);
   const possible = items.filter(i => i.rarities.includes(rarity));
   return {...possible[Math.floor(Math.random()*possible.length)], rarity};
 }
@@ -181,31 +165,30 @@ function updateInventory() {
   });
 }
 
-// Generate a horizontal reel sequence with repeating items and final item at end
-function generateReelItems(finalItem){
-  const reelItems = [];
-  for(let i=0;i<20;i++){ // 20 items repeating for smooth scroll
-    reelItems.push(items[Math.floor(Math.random()*items.length)]);
+let prebuiltReel = [];
+function buildPrebuiltReel(finalItem){
+  prebuiltReel = [];
+  for(let i=0;i<30;i++){
+    prebuiltReel.push(items[Math.floor(Math.random()*items.length)]);
   }
-  reelItems.push(finalItem); // final item at the end
-  return reelItems;
+  prebuiltReel.push(finalItem);
+  reelEl.innerHTML = '';
+  prebuiltReel.forEach(item=>{
+    const span = document.createElement('span');
+    span.textContent = item.emoji;
+    reelEl.appendChild(span);
+  });
 }
 
 function spinCase(){
   spinBtn.disabled = true;
   const finalItem = getRandomItem();
-  const reelItems = generateReelItems(finalItem);
-
-  reelEl.innerHTML = '';
-  reelItems.forEach(item=>{
-    const span = document.createElement('span');
-    span.textContent = item.emoji;
-    reelEl.appendChild(span);
-  });
-
-  const scrollDistance = (reelItems.length - 1) * 80; // 80px per item
-  reelEl.style.transition = 'transform 5s cubic-bezier(0.25,1,0.5,1)';
-  setTimeout(()=>{ reelEl.style.transform = `translateX(-${scrollDistance}px)`; }, 50);
+  buildPrebuiltReel(finalItem);
+  const scrollDistance = (prebuiltReel.length - 1) * 80;
+  setTimeout(()=>{
+    reelEl.style.transition = 'transform 5s cubic-bezier(0.25,1,0.5,1)';
+    reelEl.style.transform = `translateX(-${scrollDistance}px)`;
+  }, 50);
 
   setTimeout(()=>{
     inventory.push(finalItem);
@@ -213,14 +196,12 @@ function spinCase(){
     spinBtn.disabled = false;
     reelEl.style.transition = 'none';
     reelEl.style.transform = 'translateX(0)';
-  }, 5100); // 5 seconds + small buffer
+  }, 5100);
 }
 
-// Gamble mechanics remain the same
 function gambleItems(){
   const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length === 0) return alert("Select items to gamble!");
-
   const totalRarity = selected.reduce((sum, el)=>{
     const item = inventory[el.dataset.index];
     switch(item.rarity){
@@ -233,12 +214,14 @@ function gambleItems(){
     return sum;
   },0);
 
-  let weights = {...rarityWeights};
-  weights.gold = Math.min(0.5,0.02+totalRarity*0.03);
-  weights.red = Math.min(0.4,0.08+totalRarity*0.02);
-  weights.grey = Math.max(0,0.4-totalRarity*0.02);
-  weights.blue = Math.max(0,0.3-totalRarity*0.01);
-  weights.purple = Math.max(0,0.2-totalRarity*0.01);
+  // Adjusted gambling odds
+  let weights = {
+    grey: Math.min(0.7,0.5+0.02*totalRarity),
+    blue: Math.min(0.3,0.25+0.01*totalRarity),
+    purple: Math.min(0.15,0.15+0.005*totalRarity),
+    red: Math.min(0.08,0.08+0.002*totalRarity),
+    gold: Math.min(0.05,0.02+0.001*totalRarity)
+  };
 
   const finalRarity = weightedRandom(weights);
   const possible = items.filter(i => i.rarities.includes(finalRarity));
