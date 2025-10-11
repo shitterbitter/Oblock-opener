@@ -8,12 +8,13 @@
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  background: #111; /* black background */
+  background: #111;
+  overflow-x: hidden;
   color: #fff;
 }
 .overlay {
   position: relative;
-  background: #000; /* black panel */
+  background: #000;
   border: 2px solid orange;
   color: orange;
   padding: 40px 20px;
@@ -31,7 +32,6 @@ h1, h2 { margin-bottom: 20px; color: orange; }
   border-radius: 10px;
   border: 2px solid orange;
   background: #111;
-  display: none; /* hidden until click */
 }
 .reel {
   display: flex;
@@ -63,7 +63,7 @@ h1, h2 { margin-bottom: 20px; color: orange; }
 .btn {
   display: inline-block;
   background: orange;
-  color: black;
+  color:#111;
   padding:12px 20px;
   border-radius:14px;
   border:none;
@@ -93,97 +93,172 @@ h1, h2 { margin-bottom: 20px; color: orange; }
   border: 2px solid orange;
 }
 .item.selected { outline: 2px solid #fff; }
+.gamble-section { margin-top: 50px; }
+.grey { background-color: #444; color: #fff; }
+.blue { background-color: #ff8c00; color: #111; }
+.purple { background-color: #8b00ff; color: #fff; }
+.red { background-color: #e74c3c; color: #fff; }
+.gold { background-color: #ffd700; color: #111; }
 </style>
 </head>
 <body>
 <div class="overlay">
   <h1>O Block Case Opening</h1>
-  <div class="roller-container" id="rollerContainer">
+  <div class="roller-container">
     <div class="reel" id="reel"></div>
     <div class="indicator"></div>
   </div>
   <div>
-    <button class="btn" id="openCaseBtn">Open Case</button>
+    <button class="btn" id="spinBtn">Spin Case</button>
   </div>
   <h2>Inventory</h2>
   <div class="inventory" id="inventory"></div>
+  <div class="gamble-section">
+    <h2>Gamble Selected Items</h2>
+    <button class="btn" id="gambleBtn">Gamble</button>
+  </div>
 </div>
 
 <script>
-const reelEl = document.getElementById('reel');
-const rollerContainer = document.getElementById('rollerContainer');
-const openCaseBtn = document.getElementById('openCaseBtn');
-const inventoryEl = document.getElementById('inventory');
-let inventory = [];
+const itemsByRarity = {
+  grey: [{name:'Pistol', emoji:'🔫'}, {name:'Shotgun', emoji:'🛠️'}, {name:'SMG', emoji:'🟡'}],
+  blue: [{name:'Pistol', emoji:'🔫'}, {name:'SMG', emoji:'🟡'}, {name:'AR', emoji:'🔰'}],
+  purple: [{name:'Pistol', emoji:'🔫'}, {name:'SMG', emoji:'🟡'}, {name:'Shotgun', emoji:'🛠️'}, {name:'AR', emoji:'🔰'}],
+  red: [{name:'AR', emoji:'🔰'}, {name:'Sniper', emoji:'🎯'}],
+  gold: [{name:'Knife', emoji:'🔪'}, {name:'Gloves', emoji:'🧤'}]
+};
 
-// simple placeholder items and colors for now
-const items = [
-  {name:'Pistol', emoji:'🔫', color:'grey'},
-  {name:'SMG', emoji:'🟡', color:'blue'},
-  {name:'Shotgun', emoji:'🛠️', color:'purple'},
-  {name:'AR', emoji:'🔰', color:'red'},
-  {name:'Sniper', emoji:'🎯', color:'red'},
-  {name:'Gloves', emoji:'🧤', color:'gold'},
-  {name:'Knife', emoji:'🔪', color:'gold'}
+const rarityChances = [
+  {rarity:'grey', chance:0.45},
+  {rarity:'blue', chance:0.35},
+  {rarity:'purple', chance:0.17},
+  {rarity:'red', chance:0.025},
+  {rarity:'gold', chance:0.005}
 ];
 
-function updateInventory() {
+let inventory = [];
+
+const reelEl = document.getElementById('reel');
+const inventoryEl = document.getElementById('inventory');
+const spinBtn = document.getElementById('spinBtn');
+const gambleBtn = document.getElementById('gambleBtn');
+
+function weightedRarity() {
+  const r = Math.random();
+  let sum = 0;
+  for(const w of rarityChances){
+    sum += w.chance;
+    if(r < sum) return w.rarity;
+  }
+  return 'grey';
+}
+
+function getRandomItem(){
+  const rarity = weightedRarity();
+  const pool = itemsByRarity[rarity];
+  const item = pool[Math.floor(Math.random()*pool.length)];
+  return {...item, rarity};
+}
+
+function updateInventory(){
   inventoryEl.innerHTML='';
   inventory.forEach((item,index)=>{
-    const div = document.createElement('div');
-    div.className = 'item';
-    div.textContent = item.emoji+' '+item.name;
+    const div=document.createElement('div');
+    div.className='item '+item.rarity;
+    div.textContent=item.emoji+' '+item.name;
     div.dataset.index=index;
     div.addEventListener('click',()=>div.classList.toggle('selected'));
     inventoryEl.appendChild(div);
   });
 }
 
+// SPIN
 function spinCase() {
-  openCaseBtn.disabled = true;
-  rollerContainer.style.display = 'block';
-  const totalSlots = 40;
+  spinBtn.disabled = true;
+  const finalItem = getRandomItem();
   const itemWidth = 80;
-  const finalItem = items[Math.floor(Math.random()*items.length)];
-
+  const visibleSlots = 4;
+  const totalSlots = 40;
   const reelArray = [];
+
   for(let i=0;i<totalSlots;i++){
-    const randomItem = items[Math.floor(Math.random()*items.length)];
-    reelArray.push(randomItem);
+    reelArray.push(getRandomItem());
   }
-  reelArray.push(finalItem); // final item at end
+  reelArray.push(finalItem); // final item
 
   reelEl.innerHTML='';
   reelArray.forEach(item=>{
-    const span = document.createElement('span');
-    span.textContent = item.emoji;
-    span.style.color = 'orange';
+    const span=document.createElement('span');
+    span.textContent=item.emoji;
+    span.className=item.rarity;
     reelEl.appendChild(span);
   });
 
-  const duration = 3000;
-  let start=null;
+  const duration = 5000;
+  let start = null;
 
   function animate(timestamp){
     if(!start) start=timestamp;
     const progress = Math.min((timestamp-start)/duration,1);
     const ease = 1 - Math.pow(1-progress,3);
-    const offset = ease * ((reelArray.length-1) * itemWidth - 160); // center final item
+    const offset = ease * (reelArray.length-1) * itemWidth - (visibleSlots/2*itemWidth - itemWidth/2);
     reelEl.style.transform = `translateX(-${offset}px)`;
 
-    if(progress<1){
+    if(progress < 1){
       requestAnimationFrame(animate);
     } else {
       inventory.push(finalItem);
       updateInventory();
-      openCaseBtn.disabled = false;
+      spinBtn.disabled = false;
     }
   }
 
   requestAnimationFrame(animate);
 }
 
-openCaseBtn.addEventListener('click',spinCase);
+// GAMBLE
+function gambleItems(){
+  const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
+  if(selected.length===0) return alert("Select items to gamble!");
+  const n = selected.length;
+
+  const odds = {
+    grey: 0.45,
+    blue: 0.35 + n*0.01,
+    purple: 0.17 + n*0.005,
+    red: 0.025 + n*0.001,
+    gold: 0.005 + n*0.0005
+  };
+
+  let sum=0;
+  for(const k in odds) sum+=odds[k];
+  for(const k in odds) odds[k]/=sum;
+
+  function weightedGambleRarity(){
+    const r=Math.random();
+    let total=0;
+    for(const k in odds){
+      total+=odds[k];
+      if(r<total) return k;
+    }
+    return 'grey';
+  }
+
+  const rarity = weightedGambleRarity();
+  const pool = itemsByRarity[rarity];
+  const newItem = pool[Math.floor(Math.random()*pool.length)];
+
+  const indexes = selected.map(el=>parseInt(el.dataset.index)).sort((a,b)=>b-a);
+  indexes.forEach(i=>inventory.splice(i,1));
+
+  inventory.push({...newItem, rarity});
+  updateInventory();
+  alert("Gambled and received: "+newItem.emoji+" "+newItem.name+" ("+rarity+")");
+}
+
+spinBtn.addEventListener('click',spinCase);
+gambleBtn.addEventListener('click',gambleItems);
+
 updateInventory();
 </script>
 </body>
