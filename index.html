@@ -13,7 +13,6 @@
   --gold-2:#b8860b;
   --accent:#ff9900;
   --bg-dark:#1e1e2f;
-  --panel-dark:#2b2b3c;
 }
 
 /* General reset */
@@ -139,23 +138,7 @@ html,body{
 }
 .btn:active{transform:translateY(1px) scale(.995);}
 
-/* Story arrow & section */
-.scroll-arrow{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:2rem;
-  color:var(--gold-1);
-  cursor:pointer;
-  z-index:10;
-  animation:bounce 1.8s infinite;
-  text-shadow:0 0 8px rgba(0,0,0,0.4);
-}
-@keyframes bounce{
-  0%,100%{transform:translate(-50%,0);}
-  50%{transform:translate(-50%,-8px);}
-}
+/* Story section */
 .story{
   max-width:820px;
   margin:40px auto;
@@ -194,8 +177,6 @@ html,body{
   </div>
 </div>
 
-<div class="scroll-arrow" id="scrollArrow">⬇</div>
-
 <div class="story" id="story">
   <h2>🏙️ O Block Legends</h2>
   <p>
@@ -226,9 +207,8 @@ function animateSparkles(){
 animateSparkles();
 window.addEventListener('resize',sizeCanvas);
 
-// Scroll arrow
+// Story
 const story=document.getElementById('story');
-document.getElementById('scrollArrow').addEventListener('click',()=>{story.scrollIntoView({behavior:'smooth'});});
 story.classList.add('visible');
 
 // Case opener logic
@@ -262,11 +242,13 @@ function weightedRarity(){
   }
   return 'grey';
 }
+
 function getRandomItemForRarity(rarity){
   const pool=itemsByRarity[rarity];
   const item=pool[Math.floor(Math.random()*pool.length)];
   return {...item, rarity};
 }
+
 function updateInventory(){
   inventoryEl.innerHTML='';
   inventory.forEach((item,index)=>{
@@ -278,6 +260,8 @@ function updateInventory(){
     inventoryEl.appendChild(div);
   });
 }
+
+// Roller snapping logic
 function generateRollerArray(totalSlots=40){
   const finalRarity=weightedRarity();
   const finalItem=getRandomItemForRarity(finalRarity);
@@ -287,12 +271,13 @@ function generateRollerArray(totalSlots=40){
     array.push(getRandomItemForRarity(r));
   }
   const midIndex=Math.floor(totalSlots/2);
-  array[midIndex]=finalItem;
-  return {array, finalItem};
+  array[midIndex]=finalItem; // ensure snap to indicator
+  return {array, finalItem, midIndex};
 }
+
 function spinCase(){
   spinBtn.disabled=true;
-  const {array: reelArray, finalItem}=generateRollerArray();
+  const {array: reelArray, finalItem, midIndex}=generateRollerArray();
   reelEl.innerHTML='';
   reelArray.forEach(item=>{
     const span=document.createElement('span');
@@ -302,13 +287,12 @@ function spinCase(){
   });
   const duration=5000;
   const itemWidth=100;
-  const visibleSlots=4;
   let start=null;
   function animate(timestamp){
     if(!start) start=timestamp;
     const progress=Math.min((timestamp-start)/duration,1);
     const ease=1-Math.pow(1-progress,3);
-    const offset=ease*(reelArray.length-1)*itemWidth-(visibleSlots /2*itemWidth - itemWidth/2);
+    const offset=ease*(reelArray.length-1)*itemWidth - midIndex*itemWidth;
     reelEl.style.transform=`translateX(-${offset}px)`;
     if(progress<1) requestAnimationFrame(animate);
     else{
