@@ -47,6 +47,7 @@ h1, h2 {
   align-items: center;
   justify-content: center;
   font-size: 2rem;
+  flex-shrink: 0;
 }
 .indicator {
   position: absolute;
@@ -129,7 +130,8 @@ const items = [
   {name:'Knife', emoji:'🔪', rarities:['gold']}
 ];
 
-const baseRarityWeights = { grey: 0.5, blue: 0.25, purple: 0.15, red: 0.08, gold: 0.02 };
+// Base probabilities
+const baseRarityWeights = { grey:0.5, blue:0.3, purple:0.15, red:0.04, gold:0.01 };
 let inventory = [];
 
 const reelEl = document.getElementById('reel');
@@ -139,71 +141,70 @@ const gambleBtn = document.getElementById('gambleBtn');
 
 function weightedRandom(weights) {
   const r = Math.random();
-  let sum = 0;
-  for(let key in weights){
-    sum += weights[key];
-    if(r < sum) return key;
-  }
+  let sum=0;
+  for(let k in weights){ sum+=weights[k]; if(r<sum) return k; }
   return 'grey';
 }
 
-function getRandomItem() {
-  const rarity = weightedRandom(baseRarityWeights);
-  const possible = items.filter(i => i.rarities.includes(rarity));
+function getRandomItem(rarityWeights=baseRarityWeights) {
+  const rarity = weightedRandom(rarityWeights);
+  const possible = items.filter(i=>i.rarities.includes(rarity));
   return {...possible[Math.floor(Math.random()*possible.length)], rarity};
 }
 
-function updateInventory() {
-  inventoryEl.innerHTML = '';
+function updateInventory(){
+  inventoryEl.innerHTML='';
   inventory.forEach((item,index)=>{
-    const div = document.createElement('div');
-    div.className = 'item ' + item.rarity;
-    div.textContent = item.emoji + ' ' + item.name;
-    div.dataset.index = index;
-    div.addEventListener('click', ()=>div.classList.toggle('selected'));
+    const div=document.createElement('div');
+    div.className='item '+item.rarity;
+    div.textContent=item.emoji+' '+item.name;
+    div.dataset.index=index;
+    div.addEventListener('click',()=>div.classList.toggle('selected'));
     inventoryEl.appendChild(div);
   });
 }
 
-let prebuiltReel = [];
-function buildPrebuiltReel(finalItem){
-  prebuiltReel = [];
-  for(let i=0;i<30;i++){
-    prebuiltReel.push(items[Math.floor(Math.random()*items.length)]);
+// Prebuild reel and animate
+function spinCase(){
+  spinBtn.disabled=true;
+  const finalItem=getRandomItem();
+  reelEl.innerHTML='';
+  const totalSlots=50; // long reel for smooth spin
+  const reelArray=[];
+  for(let i=0;i<totalSlots;i++){
+    reelArray.push(items[Math.floor(Math.random()*items.length)]);
   }
-  prebuiltReel.push(finalItem);
-  reelEl.innerHTML = '';
-  prebuiltReel.forEach(item=>{
-    const span = document.createElement('span');
-    span.textContent = item.emoji;
+  reelArray.push(finalItem); // final item last
+  reelArray.forEach(item=>{
+    const span=document.createElement('span');
+    span.textContent=item.emoji;
     reelEl.appendChild(span);
   });
-}
 
-function spinCase(){
-  spinBtn.disabled = true;
-  const finalItem = getRandomItem();
-  buildPrebuiltReel(finalItem);
-  const scrollDistance = (prebuiltReel.length - 1) * 80;
+  // Calculate transform so final item is centered
+  const centerIndex=totalSlots;
+  const transformX=centerIndex*80 - 120; // 120 = half of container (320/2)
   setTimeout(()=>{
-    reelEl.style.transition = 'transform 5s cubic-bezier(0.25,1,0.5,1)';
-    reelEl.style.transform = `translateX(-${scrollDistance}px)`;
-  }, 50);
+    reelEl.style.transition='transform 5s cubic-bezier(0.25,1,0.5,1)';
+    reelEl.style.transform=`translateX(-${transformX}px)`;
+  },50);
 
   setTimeout(()=>{
     inventory.push(finalItem);
     updateInventory();
-    spinBtn.disabled = false;
-    reelEl.style.transition = 'none';
-    reelEl.style.transform = 'translateX(0)';
-  }, 5100);
+    spinBtn.disabled=false;
+    reelEl.style.transition='none';
+    reelEl.style.transform='translateX(0)';
+  },5100);
 }
 
+// Gamble system with realistic odds
 function gambleItems(){
-  const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
-  if(selected.length === 0) return alert("Select items to gamble!");
-  const totalRarity = selected.reduce((sum, el)=>{
-    const item = inventory[el.dataset.index];
+  const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
+  if(selected.length===0) return alert("Select items to gamble!");
+
+  const totalRarity=selected.reduce((sum,el)=>{
+    const item=inventory[el.dataset.index];
     switch(item.rarity){
       case 'grey': return sum+1;
       case 'blue': return sum+2;
@@ -214,30 +215,26 @@ function gambleItems(){
     return sum;
   },0);
 
-  // Adjusted gambling odds
-  let weights = {
-    grey: Math.min(0.7,0.5+0.02*totalRarity),
-    blue: Math.min(0.3,0.25+0.01*totalRarity),
-    purple: Math.min(0.15,0.15+0.005*totalRarity),
-    red: Math.min(0.08,0.08+0.002*totalRarity),
-    gold: Math.min(0.05,0.02+0.001*totalRarity)
+  // Adjusted odds: greys very common, gold extremely rare
+  let weights={
+    grey: Math.min(0.7,0.5+0.01*totalRarity),
+    blue: Math.min(0.25,0.3+0.005*totalRarity),
+    purple: Math.min(0.15,0.15+0.003*totalRarity),
+    red: Math.min(0.08,0.04+0.001*totalRarity),
+    gold: Math.min(0.02,0.01+0.0005*totalRarity)
   };
 
-  const finalRarity = weightedRandom(weights);
-  const possible = items.filter(i => i.rarities.includes(finalRarity));
-  const newItem = {...possible[Math.floor(Math.random()*possible.length)], rarity: finalRarity};
-
-  const indexesToRemove = selected.map(el=>parseInt(el.dataset.index)).sort((a,b)=>b-a);
+  const newItem=getRandomItem(weights);
+  const indexesToRemove=selected.map(el=>parseInt(el.dataset.index)).sort((a,b)=>b-a);
   indexesToRemove.forEach(i=>inventory.splice(i,1));
 
   inventory.push(newItem);
   updateInventory();
-
-  alert("Gambled and received: " + newItem.emoji + " " + newItem.name + " (" + finalRarity + ")");
+  alert("Gambled and received: "+newItem.emoji+" "+newItem.name+" ("+newItem.rarity+")");
 }
 
-spinBtn.addEventListener('click', spinCase);
-gambleBtn.addEventListener('click', gambleItems);
+spinBtn.addEventListener('click',spinCase);
+gambleBtn.addEventListener('click',gambleItems);
 
 updateInventory();
 </script>
