@@ -5,98 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>O Block Case Opening</title>
 <style>
-body {
-  margin:0;
-  font-family: 'Inter', sans-serif;
-  background: #111;
-  color: #fff;
-}
-.overlay {
-  position: relative;
-  background: #000;
-  border: 2px solid orange;
-  color: orange;
-  padding: 40px 20px;
-  min-height: 100vh;
-  text-align: center;
-}
-h1,h2{color:orange; margin-bottom:20px;}
-.roller-container{
-  position: relative;
-  width: 400px;
-  height: 100px;
-  overflow: hidden;
-  margin: 20px auto;
-  border-radius: 12px;
-  border: 2px solid orange;
-  background: #111;
-}
-.reel{
-  display:flex;
-  align-items:center;
-  height:100%;
-  will-change: transform;
-}
-.reel span{
-  min-width: 100px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:2.5rem;
-  flex-shrink:0;
-  margin:0 2px;
-  border-radius:8px;
-  font-weight:800;
-}
-.indicator{
-  position:absolute;
-  top:0;
-  left:50%;
-  width:100px;
-  height:100%;
-  margin-left:-50px;
-  border:3px solid orange;
-  pointer-events:none;
-}
-.btn{
-  display:inline-block;
-  background:orange;
-  color:#111;
-  padding:12px 20px;
-  border-radius:14px;
-  border:none;
-  font-weight:800;
-  cursor:pointer;
-  margin:5px;
-  font-size:1rem;
-}
-.inventory{
-  margin-top:30px;
-  max-width:800px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  justify-content:center;
-  border-top:2px solid orange;
-  padding-top:10px;
-}
-.item{
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:600;
-  min-width:70px;
-  text-align:center;
-  cursor:pointer;
-  user-select:none;
-  border:2px solid orange;
-}
-.item.selected{outline:2px solid #fff;}
-.grey{background-color:#444;color:#fff;}
-.blue{background-color:#ff8c00;color:#111;}
-.purple{background-color:#8b00ff;color:#fff;}
-.red{background-color:#e74c3c;color:#fff;}
-.gold{background-color:#ffd700;color:#111;}
-.gamble-section{margin-top:50px;}
+body { margin:0; font-family: 'Inter', sans-serif; background:#111; color:#fff; }
+.overlay { position: relative; background:#000; border:2px solid orange; color:orange; padding:40px 20px; min-height:100vh; text-align:center; }
+h1,h2 { color:orange; margin-bottom:20px; }
+.roller-container { position:relative; width:400px; height:100px; overflow:hidden; margin:20px auto; border-radius:12px; border:2px solid orange; background:#111; }
+.reel { display:flex; align-items:center; height:100%; will-change: transform; }
+.reel span { min-width:100px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; flex-shrink:0; margin:0 2px; border-radius:8px; font-weight:800; }
+.indicator { position:absolute; top:0; left:50%; width:100px; height:100%; margin-left:-50px; border:3px solid orange; pointer-events:none; }
+.btn { display:inline-block; background:orange; color:#111; padding:12px 20px; border-radius:14px; border:none; font-weight:800; cursor:pointer; margin:5px; font-size:1rem; }
+.inventory { margin-top:30px; max-width:800px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center; border-top:2px solid orange; padding-top:10px; }
+.item { padding:10px 14px; border-radius:10px; font-weight:600; min-width:70px; text-align:center; cursor:pointer; user-select:none; border:2px solid orange; }
+.item.selected { outline:2px solid #fff; }
+.grey { background-color:#444;color:#fff; }
+.blue { background-color:#ff8c00;color:#111; }
+.purple { background-color:#8b00ff;color:#fff; }
+.red { background-color:#e74c3c;color:#fff; }
+.gold { background-color:#ffd700;color:#111; }
+.gamble-section { margin-top:50px; }
 </style>
 </head>
 <body>
@@ -112,8 +37,8 @@ h1,h2{color:orange; margin-bottom:20px;}
 <h2>Inventory</h2>
 <div class="inventory" id="inventory"></div>
 <div class="gamble-section">
-  <h2>Gamble Selected Items</h2>
-  <button class="btn" id="gambleBtn">Gamble</button>
+<h2>Gamble Selected Items</h2>
+<button class="btn" id="gambleBtn">Gamble</button>
 </div>
 </div>
 
@@ -150,8 +75,7 @@ function weightedRarity(){
   return 'grey';
 }
 
-function getRandomItem(){
-  const rarity=weightedRarity();
+function getRandomItemForRarity(rarity){
   const pool=itemsByRarity[rarity];
   const item=pool[Math.floor(Math.random()*pool.length)];
   return {...item, rarity};
@@ -169,23 +93,22 @@ function updateInventory(){
   });
 }
 
-function generateRollerArray(finalItem,totalSlots=40){
+function generateRollerArray(totalSlots=40){
+  const finalRarity=weightedRarity();
+  const finalItem=getRandomItemForRarity(finalRarity);
   const array=[];
   for(let i=0;i<totalSlots;i++){
-    array.push(getRandomItem());
+    const r=weightedRarity();
+    array.push(getRandomItemForRarity(r));
   }
   const midIndex=Math.floor(totalSlots/2);
   array[midIndex]=finalItem;
-  return array;
+  return {array, finalItem};
 }
 
 function spinCase(){
   spinBtn.disabled=true;
-  const finalItem=getRandomItem();
-  const itemWidth=100;
-  const visibleSlots=4;
-  const reelArray=generateRollerArray(finalItem);
-  
+  const {array: reelArray, finalItem}=generateRollerArray();
   reelEl.innerHTML='';
   reelArray.forEach(item=>{
     const span=document.createElement('span');
@@ -193,8 +116,9 @@ function spinCase(){
     span.className=item.rarity;
     reelEl.appendChild(span);
   });
-
   const duration=5000;
+  const itemWidth=100;
+  const visibleSlots=4;
   let start=null;
   function animate(timestamp){
     if(!start) start=timestamp;
