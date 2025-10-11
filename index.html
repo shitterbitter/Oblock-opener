@@ -6,95 +6,109 @@
 <title>O Block Case Opening</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: url('https://upload.wikimedia.org/wikipedia/commons/8/81/Parkway_Gardens_Chicago.jpg') no-repeat center center fixed;
-    background-size: cover;
-    height: 100vh;
-    overflow: hidden;
-  }
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: url('https://upload.wikimedia.org/wikipedia/commons/8/81/Parkway_Gardens_Chicago.jpg') no-repeat center center fixed;
+  background-size: cover;
+  height: 100vh;
+  overflow-x: hidden;
+}
 
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.65);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
-    color: #fff;
-  }
+.overlay {
+  position: relative;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  padding: 40px 20px;
+  min-height: 100vh;
+}
 
-  h1 { margin-bottom: 20px; }
+h1, h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-  .roller-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+.roller-container {
+  position: relative;
+  width: 80px;
+  height: 120px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  margin: 0 auto 20px;
+}
 
-  .roller {
-    width: 80px;
-    height: 80px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    position: relative;
-  }
+.reel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 2s cubic-bezier(0.25,1,0.5,1);
+}
 
-  .reel {
-    display: flex;
-    flex-direction: column;
-    transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
-  }
+.reel span {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
 
-  .reel span {
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.indicator {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  margin-top: -20px;
+  border: 2px solid #ffd36b;
+  pointer-events: none;
+}
 
-  .btn {
-    background: linear-gradient(180deg,#ffd36b,#b8860b);
-    color:#111;
-    padding:12px 20px;
-    border-radius:14px;
-    border:none;
-    font-weight:800;
-    cursor:pointer;
-    margin:5px;
-    font-size: 1rem;
-  }
+.btn {
+  background: linear-gradient(180deg,#ffd36b,#b8860b);
+  color:#111;
+  padding:12px 20px;
+  border-radius:14px;
+  border:none;
+  font-weight:800;
+  cursor:pointer;
+  margin:5px;
+  font-size: 1rem;
+}
 
-  .inventory {
-    margin-top: 20px;
-    max-width: 600px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-  }
+.inventory {
+  margin-top: 20px;
+  max-width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
 
-  .item {
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    text-align: center;
-    min-width: 60px;
-  }
+.item {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+  min-width: 60px;
+  cursor: pointer;
+  user-select: none;
+}
 
-  .grey { background-color: #7d7d7d; color: #fff; }
-  .blue { background-color: #3498db; color: #fff; }
-  .purple { background-color: #9b59b6; color: #fff; }
-  .red { background-color: #e74c3c; color: #fff; }
-  .gold { background-color: #ffd700; color: #111; }
+.item.selected {
+  outline: 2px solid #ffd36b;
+}
+
+.grey { background-color: #7d7d7d; color: #fff; }
+.blue { background-color: #3498db; color: #fff; }
+.purple { background-color: #9b59b6; color: #fff; }
+.red { background-color: #e74c3c; color: #fff; }
+.gold { background-color: #ffd700; color: #111; }
+
+.gamble-section {
+  margin-top: 50px;
+  text-align: center;
+}
 </style>
 </head>
 <body>
@@ -102,18 +116,20 @@
   <h1>O Block Case Opening</h1>
 
   <div class="roller-container">
-    <div class="roller" id="roller1"><div class="reel"></div></div>
-    <div class="roller" id="roller2"><div class="reel"></div></div>
-    <div class="roller" id="roller3"><div class="reel"></div></div>
+    <div class="reel" id="reel"></div>
+    <div class="indicator"></div>
   </div>
-
-  <div>
+  <div style="text-align:center;">
     <button class="btn" id="spinBtn">Spin Case</button>
-    <button class="btn" id="gambleBtn">Gamble Items</button>
   </div>
 
   <h2>Inventory</h2>
   <div class="inventory" id="inventory"></div>
+
+  <div class="gamble-section">
+    <h2>Gamble Selected Items</h2>
+    <button class="btn" id="gambleBtn">Gamble</button>
+  </div>
 </div>
 
 <script>
@@ -127,32 +143,20 @@ const items = [
   {name:'Knife', emoji:'🔪', rarities:['gold']}
 ];
 
-const rarityWeights = {
-  grey: 0.4,
-  blue: 0.3,
-  purple: 0.2,
-  red: 0.08,
-  gold: 0.02
-};
-
+const rarityWeights = { grey: 0.4, blue: 0.3, purple: 0.2, red: 0.08, gold: 0.02 };
 let inventory = [];
 
-const rollerEls = [
-  document.getElementById('roller1').querySelector('.reel'),
-  document.getElementById('roller2').querySelector('.reel'),
-  document.getElementById('roller3').querySelector('.reel')
-];
-
+const reelEl = document.getElementById('reel');
 const inventoryEl = document.getElementById('inventory');
 const spinBtn = document.getElementById('spinBtn');
 const gambleBtn = document.getElementById('gambleBtn');
 
 function weightedRandom(weights) {
   const r = Math.random();
-  let sum=0;
-  for (let key in weights) {
+  let sum = 0;
+  for(let key in weights){
     sum += weights[key];
-    if (r < sum) return key;
+    if(r < sum) return key;
   }
   return 'grey';
 }
@@ -160,65 +164,61 @@ function weightedRandom(weights) {
 function getRandomItem() {
   const rarity = weightedRandom(rarityWeights);
   const possible = items.filter(i => i.rarities.includes(rarity));
-  const item = possible[Math.floor(Math.random()*possible.length)];
-  return {...item, rarity};
+  return {...possible[Math.floor(Math.random()*possible.length)], rarity};
 }
 
 function updateInventory() {
   inventoryEl.innerHTML = '';
-  inventory.forEach((item)=>{
+  inventory.forEach((item,index)=>{
     const div = document.createElement('div');
     div.className = 'item ' + item.rarity;
     div.textContent = item.emoji + ' ' + item.name;
+    div.dataset.index = index;
+    div.addEventListener('click', ()=>div.classList.toggle('selected'));
     inventoryEl.appendChild(div);
   });
 }
 
-function spinCase() {
-  spinBtn.disabled = true;
-
-  // Generate final items for each reel
-  const finalItems = [getRandomItem(), getRandomItem(), getRandomItem()];
-  
-  rollerEls.forEach((reel, index)=>{
-    reel.innerHTML = ''; // clear previous
-    // Add several random items for spinning animation
-    for(let i=0;i<10;i++){
-      const tempItem = items[Math.floor(Math.random()*items.length)];
-      const span = document.createElement('span');
-      span.textContent = tempItem.emoji;
-      reel.appendChild(span);
-    }
-    // Add final item at the end
-    const finalSpan = document.createElement('span');
-    finalSpan.textContent = finalItems[index].emoji;
-    reel.appendChild(finalSpan);
-
-    // Animate reel
-    setTimeout(()=>{
-      reel.style.transition = 'transform 2s cubic-bezier(0.25, 1, 0.5, 1)';
-      reel.style.transform = `translateY(-${80*10}px)`; // scroll 10 items + final
-    }, index*200); // staggered spin
-  });
-
-  // After animation completes, add items to inventory
-  setTimeout(()=>{
-    inventory.push(...finalItems);
-    updateInventory();
-    spinBtn.disabled = false;
-    // Reset reel positions for next spin
-    rollerEls.forEach(reel=>{
-      reel.style.transition = 'none';
-      reel.style.transform = 'translateY(0)';
-    });
-  }, 3000);
+function generateReelItems(finalItem){
+  const reelItems = [];
+  for(let i=0;i<10;i++){
+    const tempItem = items[Math.floor(Math.random()*items.length)];
+    reelItems.push(tempItem);
+  }
+  reelItems.push(finalItem);
+  return reelItems;
 }
 
-function gambleItems() {
-  if(inventory.length===0) return alert("No items to gamble!");
-  
-  const totalRarity = inventory.reduce((sum,i)=>{
-    switch(i.rarity){
+function spinCase(){
+  spinBtn.disabled = true;
+  const finalItem = getRandomItem();
+  const reelItems = generateReelItems(finalItem);
+  reelEl.innerHTML = '';
+  reelItems.forEach(item=>{
+    const span = document.createElement('span');
+    span.textContent = item.emoji;
+    reelEl.appendChild(span);
+  });
+  setTimeout(()=>{
+    reelEl.style.transition = 'transform 2s cubic-bezier(0.25,1,0.5,1)';
+    reelEl.style.transform = `translateY(-${40*10}px)`;
+  },100);
+  setTimeout(()=>{
+    inventory.push(finalItem);
+    updateInventory();
+    spinBtn.disabled = false;
+    reelEl.style.transition = 'none';
+    reelEl.style.transform = 'translateY(0)';
+  },2300);
+}
+
+function gambleItems(){
+  const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
+  if(selected.length === 0) return alert("Select items to gamble!");
+  // calculate total rarity
+  const totalRarity = selected.reduce((sum, el)=>{
+    const item = inventory[el.dataset.index];
+    switch(item.rarity){
       case 'grey': return sum+1;
       case 'blue': return sum+2;
       case 'purple': return sum+3;
@@ -227,19 +227,24 @@ function gambleItems() {
     }
     return sum;
   },0);
-
   let weights = {...rarityWeights};
-  weights.gold = Math.min(0.5, 0.02 + totalRarity*0.03);
-  weights.red = Math.min(0.4, 0.08 + totalRarity*0.02);
-  weights.grey = 0.4 - totalRarity*0.02;
-  weights.blue = 0.3 - totalRarity*0.01;
-  weights.purple = 0.2 - totalRarity*0.01;
+  weights.gold = Math.min(0.5,0.02+totalRarity*0.03);
+  weights.red = Math.min(0.4,0.08+totalRarity*0.02);
+  weights.grey = Math.max(0,0.4-totalRarity*0.02);
+  weights.blue = Math.max(0,0.3-totalRarity*0.01);
+  weights.purple = Math.max(0,0.2-totalRarity*0.01);
+  const finalRarity = weightedRandom(weights);
+  const possible = items.filter(i => i.rarities.includes(finalRarity));
+  const newItem = {...possible[Math.floor(Math.random()*possible.length)], rarity: finalRarity};
 
-  const newItem = getRandomItem();
-  newItem.rarity = weightedRandom(weights);
+  // remove selected items
+  const indexesToRemove = selected.map(el=>parseInt(el.dataset.index)).sort((a,b)=>b-a);
+  indexesToRemove.forEach(i=>inventory.splice(i,1));
+
   inventory.push(newItem);
   updateInventory();
-  alert("Gambled and got: " + newItem.emoji + " " + newItem.name + " (" + newItem.rarity + ")");
+
+  alert("Gambled and received: " + newItem.emoji + " " + newItem.name + " (" + finalRarity + ")");
 }
 
 spinBtn.addEventListener('click', spinCase);
