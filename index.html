@@ -190,20 +190,8 @@ const canvas=document.getElementById('sparkleCanvas');
 const ctx=canvas.getContext('2d');
 function sizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
 sizeCanvas();
-const sparkles=[];
-for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
-function animateSparkles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  for(const s of sparkles){
-    ctx.beginPath();
-    ctx.fillStyle=`rgba(255,215,130,${s.opacity})`;
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fill();
-    s.y-=s.speed;
-    if(s.y<-8){s.y=canvas.height+6;s.x=Math.random()*canvas.width;}
-  }
-  requestAnimationFrame(animateSparkles);
-}
+const sparkles=[];for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
+function animateSparkles(){ctx.clearRect(0,0,canvas.width,canvas.height);for(const s of sparkles){ctx.beginPath();ctx.fillStyle=`rgba(255,215,130,${s.opacity})`;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();s.y-=s.speed;if(s.y<-8){s.y=canvas.height+6;s.x=Math.random()*canvas.width;}}requestAnimationFrame(animateSparkles);}
 animateSparkles();
 window.addEventListener('resize',sizeCanvas);
 
@@ -304,37 +292,60 @@ function spinCase(){
   requestAnimationFrame(animate);
 }
 
+// New gambling logic
 function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
-  const n=selected.length;
-  const odds={
-    grey:0.45,
-    blue:0.35+n*0.01,
-    purple:0.17+n*0.005,
-    red:0.025+n*0.001,
-    gold:0.005+n*0.0005
+
+  // Calculate total rarity score
+  let totalScore = 0;
+  selected.forEach(div=>{
+    const item = inventory[div.dataset.index];
+    switch(item.rarity){
+      case 'grey': totalScore+=1; break;
+      case 'blue': totalScore+=2; break;
+      case 'purple': totalScore+=3; break;
+      case 'red': totalScore+=4; break;
+      case 'gold': totalScore+=5; break;
+    }
+  });
+
+  // Assign gamble weights based on totalScore
+  let gambleWeights = {
+    grey: Math.max(0, 45 - totalScore*4),
+    blue: Math.max(0, 35 - totalScore*2),
+    purple: Math.max(0, 17 + totalScore*2),
+    red: Math.min(30, totalScore*2),
+    gold: Math.min(5, totalScore*0.5)
   };
-  let sum=0;
-  for(const k in odds) sum+=odds[k];
-  for(const k in odds) odds[k]/=sum;
-  function weightedGambleRarity(){
+
+  // Normalize weights
+  const sum = Object.values(gambleWeights).reduce((a,b)=>a+b,0);
+  for(const k in gambleWeights) gambleWeights[k]/=sum;
+
+  // Weighted random function
+  function weightedRarity(){
     const r=Math.random();
-    let total=0;
-    for(const k in odds){
-      total+=odds[k];
-      if(r<total) return k;
+    let cumulative=0;
+    for(const k in gambleWeights){
+      cumulative+=gambleWeights[k];
+      if(r<cumulative) return k;
     }
     return 'grey';
   }
-  const rarity=weightedGambleRarity();
-  const item=getRandomItemForRarity(rarity);
+
+  const rarity = weightedRarity();
+  const item = getRandomItemForRarity(rarity);
+
+  // Remove selected items
   selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>{
     inventory.splice(div.dataset.index,1);
   });
+
+  // Add new item
   inventory.push(item);
   updateInventory();
-  alert(`You gambled ${n} items and got: ${item.emoji} ${item.name} (${item.rarity})`);
+  alert(`You gambled ${selected.length} items and got: ${item.emoji} ${item.name} (${item.rarity})`);
 }
 
 spinBtn.addEventListener('click',spinCase);
