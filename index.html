@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Case Opener Go</title>
+<title>💥 O Block Case Opener</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -107,7 +107,6 @@ html,body{
   padding-top:10px;
 }
 .item{
-  position:relative;
   padding:10px 14px;
   border-radius:12px;
   font-weight:600;
@@ -119,16 +118,6 @@ html,body{
   box-shadow: 0 0 8px rgba(0,0,0,0.5);
 }
 .item.selected{outline:2px solid #fff;}
-.item .condition{
-  position:absolute;
-  top:2px;
-  right:4px;
-  font-size:0.7rem;
-  font-weight:800;
-  color:#fff;
-}
-
-/* Rarity colors */
 .grey { background-color:#555;color:#fff; }
 .blue { background-color:#1e90ff;color:#fff; }
 .purple { background-color:#8b00ff;color:#fff; }
@@ -191,7 +180,7 @@ html,body{
 <div class="story" id="story">
   <h2>🏙️ O Block Legends</h2>
   <p>
-    Gold Gold Gold! Enter the world of gambling, where the cases contain the rarest gear. Collect weapons and special items, gamble wisely, and own the best inventory in the world!
+    Step into the streets of O Block, where the cases contain the rarest gear. Collect weapons, gamble wisely, and climb the ranks!
   </p>
 </div>
 
@@ -201,8 +190,20 @@ const canvas=document.getElementById('sparkleCanvas');
 const ctx=canvas.getContext('2d');
 function sizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
 sizeCanvas();
-const sparkles=[];for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
-function animateSparkles(){ctx.clearRect(0,0,canvas.width,canvas.height);for(const s of sparkles){ctx.beginPath();ctx.fillStyle=`rgba(255,215,130,${s.opacity})`;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();s.y-=s.speed;if(s.y<-8){s.y=canvas.height+6;s.x=Math.random()*canvas.width;}}requestAnimationFrame(animateSparkles);}
+const sparkles=[];
+for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
+function animateSparkles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(const s of sparkles){
+    ctx.beginPath();
+    ctx.fillStyle=`rgba(255,215,130,${s.opacity})`;
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+    s.y-=s.speed;
+    if(s.y<-8){s.y=canvas.height+6;s.x=Math.random()*canvas.width;}
+  }
+  requestAnimationFrame(animateSparkles);
+}
 animateSparkles();
 window.addEventListener('resize',sizeCanvas);
 
@@ -210,7 +211,7 @@ window.addEventListener('resize',sizeCanvas);
 const story=document.getElementById('story');
 story.classList.add('visible');
 
-// Case opener logic with conditions
+// Case opener logic
 const itemsByRarity = {
   grey: [{name:'Pistol',emoji:'🔫'},{name:'Shotgun',emoji:'🛠️'},{name:'SMG',emoji:'🟡'}],
   blue: [{name:'Pistol',emoji:'🔫'},{name:'SMG',emoji:'🟡'},{name:'AR',emoji:'🔰'}],
@@ -219,16 +220,7 @@ const itemsByRarity = {
   gold: [{name:'Knife',emoji:'🔪'},{name:'Gloves',emoji:'🧤'}]
 };
 const rarityChances=[{rarity:'grey',chance:0.45},{rarity:'blue',chance:0.35},{rarity:'purple',chance:0.17},{rarity:'red',chance:0.025},{rarity:'gold',chance:0.005}];
-
-const conditions=['FT','WW','MW','FN']; // Weighted: FT>WW>MW>FN
-function getRandomCondition(){
-  const r=Math.random();
-  if(r<0.4) return 'FT';
-  if(r<0.7) return 'WW';
-  if(r<0.9) return 'MW';
-  return 'FN';
-}
-
+const conditions = ['FT','WW','MW','FN'];
 let inventory=[];
 const reelEl=document.getElementById('reel');
 const inventoryEl=document.getElementById('inventory');
@@ -245,10 +237,20 @@ function weightedRarity(){
   return 'grey';
 }
 
+function getRandomCondition(){
+  // FT most common, then WW, MW, FN
+  const r=Math.random();
+  if(r<0.45) return 'FT';
+  else if(r<0.75) return 'WW';
+  else if(r<0.95) return 'MW';
+  else return 'FN';
+}
+
 function getRandomItemForRarity(rarity){
   const pool=itemsByRarity[rarity];
   const item=pool[Math.floor(Math.random()*pool.length)];
-  return {...item, rarity, condition:getRandomCondition()};
+  const condition = getRandomCondition();
+  return {...item, rarity, condition};
 }
 
 function updateInventory(){
@@ -256,7 +258,7 @@ function updateInventory(){
   inventory.forEach((item,index)=>{
     const div=document.createElement('div');
     div.className='item '+item.rarity;
-    div.innerHTML=`${item.emoji} ${item.name}<span class="condition">${item.condition}</span>`;
+    div.textContent=`${item.emoji} ${item.name} [${item.condition}]`;
     div.dataset.index=index;
     div.addEventListener('click',()=>div.classList.toggle('selected'));
     inventoryEl.appendChild(div);
@@ -273,7 +275,7 @@ function generateRollerArray(totalSlots=40){
     array.push(getRandomItemForRarity(r));
   }
   const midIndex=Math.floor(totalSlots/2);
-  array[midIndex]=finalItem; // ensure snap to indicator
+  array[midIndex]=finalItem;
   return {array, finalItem, midIndex};
 }
 
@@ -283,8 +285,8 @@ function spinCase(){
   reelEl.innerHTML='';
   reelArray.forEach(item=>{
     const span=document.createElement('span');
+    span.textContent=item.emoji; // condition hidden on roller
     span.className=item.rarity;
-    span.textContent=item.emoji; // only emoji
     reelEl.appendChild(span);
   });
   const duration=5000;
@@ -306,44 +308,64 @@ function spinCase(){
   requestAnimationFrame(animate);
 }
 
-// Gambling logic with condition
+// Gambling logic with min rarity & condition boost
 function gambleItems(){
-  const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
+  const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
-  const n=selected.length;
-  // Adjust odds based on items and conditions
-  const baseOdds={grey:0.45,blue:0.35,purple:0.17,red:0.025,gold:0.005};
-  let totalMod=0;
-  selected.forEach(item=>{
-    if(item.textContent.includes('FN')) totalMod+=0.015;
-    else if(item.textContent.includes('MW')) totalMod+=0.01;
-    else if(item.textContent.includes('FT')) totalMod+=0.005;
-  });
-  let odds={};
-  for(const k in baseOdds){
-    odds[k]=baseOdds[k]+totalMod*baseOdds[k];
-  }
-  // Normalize
-  let sum=0;
-  for(const k in odds) sum+=odds[k];
-  for(const k in odds) odds[k]/=sum;
-  function weightedGambleRarity(){
-    const r=Math.random();
-    let total=0;
-    for(const k in odds){
-      total+=odds[k];
-      if(r<total) return k;
+  
+  const baseOdds = { grey:0.45, blue:0.35, purple:0.17, red:0.025, gold:0.005 };
+  const rarityOrder = ['grey','blue','purple','red','gold'];
+  
+  // Determine minimum allowed rarity
+  const selectedRarities = selected.map(div => inventory[div.dataset.index].rarity);
+  const minRarityIndex = Math.max(...selectedRarities.map(r => rarityOrder.indexOf(r)));
+  
+  // Initialize odds & remove lower rarities
+  let odds = {...baseOdds};
+  for(let i=0;i<minRarityIndex;i++) odds[rarityOrder[i]]=0;
+  
+  // Apply condition-based boosts
+  selected.forEach(div=>{
+    const item = inventory[div.dataset.index];
+    let boost=0;
+    switch(item.condition){
+      case 'FN': boost=0.05; break;
+      case 'MW': boost=0.03; break;
+      case 'FT': boost=0.015; break;
+      case 'WW': boost=0.005; break;
     }
-    return 'grey';
+    for(let i=minRarityIndex+1;i<rarityOrder.length;i++){
+      const r = rarityOrder[i];
+      odds[r] += boost*(i - minRarityIndex);
+    }
+  });
+  
+  // Normalize odds
+  let sum = Object.values(odds).reduce((a,b)=>a+b,0);
+  for(const k in odds) odds[k]/=sum;
+  
+  // Weighted pick
+  const r = Math.random();
+  let total=0;
+  let pickedRarity = rarityOrder[minRarityIndex];
+  for(const k of rarityOrder.slice(minRarityIndex)){
+    total += odds[k];
+    if(r<total){
+      pickedRarity=k;
+      break;
+    }
   }
-  const rarity=weightedGambleRarity();
-  const item=getRandomItemForRarity(rarity);
-  selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>{
+  
+  const item=getRandomItemForRarity(pickedRarity);
+  
+  // Remove selected items
+  selected.sort((a,b)=>b.dataset.index - a.dataset.index).forEach(div=>{
     inventory.splice(div.dataset.index,1);
   });
+  
   inventory.push(item);
   updateInventory();
-  alert(`You gambled ${n} items and got: ${item.emoji} ${item.name} (${item.rarity}, ${item.condition})`);
+  alert(`You gambled ${selected.length} items and got: ${item.emoji} ${item.name} (${item.rarity}, ${item.condition})`);
 }
 
 spinBtn.addEventListener('click',spinCase);
