@@ -83,16 +83,19 @@ html,body{
   color:#fff;
   text-shadow:0 0 3px rgba(0,0,0,0.7);
 }
+/* ✅ Muutin indikaattorin laatikosta kapeaksi pystylinjaksi */
 .indicator {
   position:absolute;
-  top:0;
+  top:20%;
   left:50%;
-  width:100px;
-  height:100%;
-  margin-left:-50px;
-  border:3px solid var(--accent);
+  width:4px;
+  height:60%;
+  margin-left:-2px;
   pointer-events:none;
-  box-shadow: 0 0 10px var(--accent);
+  background:var(--gold-1);
+  box-shadow: 0 0 12px rgba(255,215,107,0.9);
+  border-radius:2px;
+  z-index:2;
 }
 .inventory{
   margin-top:30px;
@@ -243,7 +246,7 @@ function updateInventory(){
   });
 }
 
-// ✅ KORJATTU: Roller snapping logic
+// ✅ KORJAUS: Roller snapping logic laskee pikselitarkasti ja mahdollistaa useamman kierroksen
 function generateRollerArray(totalSlots = 40) {
   const finalRarity = weightedRarity();
   const finalItem = getRandomItemForRarity(finalRarity);
@@ -264,12 +267,15 @@ function spinCase() {
   let { array: reelArray, midIndex } = generateRollerArray();
   const totalSlots = reelArray.length;
 
+  // Sekoitetaan alkuasento satunnaisesti
   const startOffset = Math.floor(Math.random() * (totalSlots - 2)) + 1;
   reelArray = [...reelArray.slice(startOffset), ...reelArray.slice(0, startOffset)];
 
+  // Lasketaan uusi mid-index ja finalItem oikealle (sen mukaan miten rulla on esitetty)
   const newMidIndex = (midIndex - startOffset + totalSlots) % totalSlots;
   const finalItem = reelArray[newMidIndex];
 
+  // Renderöidään rulla
   reelEl.innerHTML = '';
   reelArray.forEach(item => {
     const span = document.createElement('span');
@@ -278,24 +284,37 @@ function spinCase() {
     reelEl.appendChild(span);
   });
 
-  const duration = 5000;
-  const itemWidth = 100;
-  let start = null;
+  // Odotetaan, että DOM on renderöity jotta voimme lukea mitat
+  requestAnimationFrame(() => {
+    const firstSpan = reelEl.querySelector('span');
+    const style = getComputedStyle(firstSpan);
+    const itemFullWidth = firstSpan.offsetWidth + parseFloat(style.marginLeft || 0) + parseFloat(style.marginRight || 0);
+    const containerWidth = reelEl.parentElement.offsetWidth;
+    const centerOffset = containerWidth / 2 - itemFullWidth / 2;
 
-  function animate(timestamp) {
-    if (!start) start = timestamp;
-    const progress = Math.min((timestamp - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3);
-    const offset = ease * (totalSlots - 1) * itemWidth;
-    reelEl.style.transform = `translateX(-${offset}px)`;
-    if (progress < 1) requestAnimationFrame(animate);
-    else {
-      inventory.push(finalItem);
-      updateInventory();
-      spinBtn.disabled = false;
+    // Lisätään muutama täysi kierros, jotta animaatio näyttää pyörivän
+    const extraCycles = 4;
+    const finalTarget = ((totalSlots * extraCycles) + newMidIndex) * itemFullWidth - centerOffset;
+
+    const duration = 5000;
+    let start = null;
+
+    function animate(timestamp) {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+      const offset = ease * finalTarget;
+      reelEl.style.transform = `translateX(-${offset}px)`;
+      if (progress < 1) requestAnimationFrame(animate);
+      else {
+        // Lisätään inventoryyn SE sama item, joka on keskellä
+        inventory.push(finalItem);
+        updateInventory();
+        spinBtn.disabled = false;
+      }
     }
-  }
-  requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
+  });
 }
 
 // Gambling logic (ennallaan)
