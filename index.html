@@ -246,10 +246,11 @@ function updateInventory(){
   });
 }
 
-// ✅ Korjattu rulla, animaatio toimii oikein
+// ✅ Korjattu rulla
 function spinCase() {
   spinBtn.disabled = true;
-  const totalSlots = 40;
+  const totalSlots = 10; // slots per cycle
+  const cycles = 6;
   const finalRarity = weightedRarity();
   const finalItem = getRandomItemForRarity(finalRarity);
 
@@ -259,8 +260,11 @@ function spinCase() {
     else reelArray.push(getRandomItemForRarity(weightedRarity()));
   }
 
+  const fullReel = [];
+  for (let i = 0; i < cycles; i++) fullReel.push(...reelArray);
+
   reelEl.innerHTML = '';
-  reelArray.forEach(item => {
+  fullReel.forEach(item => {
     const span = document.createElement('span');
     span.textContent = item.emoji;
     span.className = item.rarity;
@@ -273,9 +277,8 @@ function spinCase() {
     const containerWidth = reelEl.parentElement.offsetWidth;
     const centerOffset = containerWidth / 2 - spanWidth / 2;
 
-    const cycles = 5;
-    const finalIndex = Math.floor(totalSlots / 2);
-    const targetOffset = (totalSlots * cycles + finalIndex) * spanWidth - centerOffset;
+    const finalIndex = Math.floor(totalSlots / 2) + (cycles - 1) * totalSlots;
+    const targetOffset = finalIndex * spanWidth - centerOffset;
 
     const duration = 4000;
     let start = null;
@@ -296,7 +299,7 @@ function spinCase() {
   });
 }
 
-// Gambling logic (sama kuin ennen)
+// Gambling logic (sama kuin aiemmin)
 function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
