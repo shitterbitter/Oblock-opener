@@ -299,7 +299,42 @@ function spinCase() {
   });
 }
 
-// Gambling logic (sama kuin aiemmin)
+// ✅ Gamble highlight
+function showGambleResult(item){
+  const overlay=document.createElement('div');
+  overlay.style.position='fixed';
+  overlay.style.top='50%';
+  overlay.style.left='50%';
+  overlay.style.transform='translate(-50%,-50%) scale(0.8)';
+  overlay.style.padding='30px 40px';
+  overlay.style.background='rgba(0,0,0,0.85)';
+  overlay.style.border='3px solid var(--accent)';
+  overlay.style.borderRadius='16px';
+  overlay.style.fontSize='2rem';
+  overlay.style.fontWeight='800';
+  overlay.style.color='white';
+  overlay.style.textAlign='center';
+  overlay.style.zIndex='2000';
+  overlay.style.opacity='0';
+  overlay.textContent=item.emoji + ' ' + item.name;
+
+  document.body.appendChild(overlay);
+
+  overlay.animate([
+    {opacity:0, transform:'translate(-50%,-50%) scale(0.8)'},
+    {opacity:1, transform:'translate(-50%,-50%) scale(1.1)'},
+    {opacity:1, transform:'translate(-50%,-50%) scale(1)'}
+  ], {duration:600, easing:'ease-out'});
+
+  setTimeout(()=>{
+    overlay.animate([
+      {opacity:1, transform:'translate(-50%,-50%) scale(1)'},
+      {opacity:0, transform:'translate(-50%,-50%) scale(0.8)'}
+    ], {duration:500, easing:'ease-in'}).onfinish = ()=>overlay.remove();
+  },1200);
+}
+
+// Gambling logic
 function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
@@ -337,32 +372,7 @@ function gambleItems(){
   inventory.push(item);
   updateInventory();
 
-  const divs=Array.from(inventoryEl.children);
-  const last=divs[divs.length-1];
-  for(let i=0;i<20;i++){
-    const p=document.createElement('div');
-    p.style.position='absolute';
-    p.style.width='6px'; p.style.height='6px';
-    p.style.background=['#FFD700','#FFEA00','#FFF5B0','#FFDD33'][Math.floor(Math.random()*4)];
-    p.style.borderRadius='50%';
-    p.style.left=last.offsetLeft+last.offsetWidth/2+'px';
-    p.style.top=last.offsetTop+last.offsetHeight/2+'px';
-    p.style.pointerEvents='none';
-    p.style.opacity=1;
-    p.style.zIndex=1000;
-    document.body.appendChild(p);
-    const vx=(Math.random()-0.5)*8, vy=(Math.random()-0.5)*8;
-    let life=30;
-    function frame(){
-      p.style.left=parseFloat(p.style.left)+vx+'px';
-      p.style.top=parseFloat(p.style.top)+vy+'px';
-      p.style.opacity=parseFloat(p.style.opacity)-0.03;
-      life--;
-      if(life>0) requestAnimationFrame(frame);
-      else p.remove();
-    }
-    frame();
-  }
+  showGambleResult(item); // ✅ highlight
 }
 
 spinBtn.addEventListener('click',spinCase);
