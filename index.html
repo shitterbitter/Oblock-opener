@@ -219,30 +219,44 @@ function showGambleResult(item){
     animate();
 }
 
-// ✅ Gamble
+// ✅ Gamble (tasapainotettu: rarity pysyy yleensä samana)
 function gambleItems(){
     const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
     if(selected.length===0) return alert("Select items to gamble!");
-    const n = selected.length;
+    
     const rarityOrder=['grey','blue','purple','red','gold'];
-    const minRarity = rarityOrder.reduce((acc,r)=> selected.some(i=>i.classList.contains(r))?r:acc,'grey');
     const baseOdds={grey:0.45,blue:0.35,purple:0.17,red:0.025,gold:0.005};
+
+    const minRarity = rarityOrder.reduce((acc,r)=> selected.some(i=>i.classList.contains(r))?r:acc,'grey');
+
     const odds={};
     for(const r of rarityOrder){
         if(rarityOrder.indexOf(r)<rarityOrder.indexOf(minRarity)) odds[r]=0;
         else odds[r]=baseOdds[r];
     }
-    for(const r in odds) odds[r]+=n*0.002;
+
     let sum=0; for(const r in odds) sum+=odds[r]; for(const r in odds) odds[r]/=sum;
-    function weightedGambleRarity(){ const r=Math.random(); let total=0; for(const k in odds){ total+=odds[k]; if(r<total) return k;} return minRarity; }
+
+    function weightedGambleRarity(){ 
+        const r=Math.random(); 
+        let total=0; 
+        for(const k in odds){ 
+            total+=odds[k]; 
+            if(r<total) return k;
+        } 
+        return minRarity; 
+    }
 
     let rarity = weightedGambleRarity();
-    let item = getRandomItemForRarity(rarity);
-    if(n===1 && Math.random()<0.25 && rarity!=='grey'){
+
+    // Pieni mahdollisuus downgrade (18%)
+    if(rarityOrder.indexOf(rarity) > 0 && Math.random()<0.18){
         const rarityIndex = rarityOrder.indexOf(rarity);
         const downgradeIndex = Math.max(rarityIndex-1,0);
-        if(downgradeIndex !== rarityIndex){ rarity=rarityOrder[downgradeIndex]; item=getRandomItemForRarity(rarity); }
+        rarity = rarityOrder[downgradeIndex];
     }
+
+    const item = getRandomItemForRarity(rarity);
 
     selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>inventory.splice(div.dataset.index,1));
     inventory.push(item);
