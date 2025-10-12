@@ -144,7 +144,7 @@ function updateInventory(){
 // ✅ Korjattu rulla
 function spinCase() {
   spinBtn.disabled = true;
-  const totalSlots = 10; // slots per cycle
+  const totalSlots = 10; 
   const cycles = 6;
   const finalRarity = weightedRarity();
   const finalItem = getRandomItemForRarity(finalRarity);
@@ -186,96 +186,122 @@ function spinCase() {
 
 // 🔥 Keskelle ilmestyvä gamble-item animaatio
 function showGambleResult(item) {
-  const rarityColors = {
-    grey: '#555',
-    blue: '#1e90ff',
-    purple: '#8b00ff',
-    red: '#e74c3c',
-    gold: '#FFD700'
-  };
+  const rarityColors = { grey:'#555', blue:'#1e90ff', purple:'#8b00ff', red:'#e74c3c', gold:'#FFD700' };
   const animDiv = document.createElement('div');
   animDiv.style.position = 'fixed';
   animDiv.style.left = '50%';
   animDiv.style.top = '50%';
   animDiv.style.transform = 'translate(-50%, -50%) scale(0)';
-  animDiv.style.padding = '40px 60px';
-  animDiv.style.borderRadius = '20px';
-  animDiv.style.background = rarityColors[item.rarity];
-  animDiv.style.color = item.rarity === 'gold' ? '#111' : '#fff';
+  animDiv.style.padding = '20px 30px';
+  animDiv.style.borderRadius = '16px';
   animDiv.style.fontSize = '2rem';
   animDiv.style.fontWeight = '800';
+  animDiv.style.color = rarityColors[item.rarity];
+  animDiv.style.background = 'rgba(0,0,0,0.7)';
+  animDiv.style.zIndex = 10000;
   animDiv.style.textAlign = 'center';
-  animDiv.style.boxShadow = `0 0 30px ${rarityColors[item.rarity]}aa`;
-  animDiv.style.zIndex = 2000;
   animDiv.textContent = `${item.emoji} ${item.name}`;
   document.body.appendChild(animDiv);
   let scale = 0;
-  function animate() {
-    scale += 0.05;
-    animDiv.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    if(scale < 1) requestAnimationFrame(animate);
-    else setTimeout(() => {
-      animDiv.style.transition = 'opacity 0.5s ease';
-      animDiv.style.opacity = 0;
-      setTimeout(() => animDiv.remove(), 500);
-    }, 1000);
+  let opacity = 0;
+  let duration = 60;
+  function animate(){
+    if(duration-- > 0){
+      scale += 0.05;
+      opacity += 0.05;
+      animDiv.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      animDiv.style.opacity = opacity;
+      requestAnimationFrame(animate);
+    } else {
+      let fade=30;
+      function fadeOut(){
+        if(fade-- > 0){
+          animDiv.style.opacity -= 0.03;
+          requestAnimationFrame(fadeOut);
+        } else animDiv.remove();
+      }
+      fadeOut();
+    }
   }
-  requestAnimationFrame(animate);
+  animate();
 }
 
-// Gambling logic
-function gambleItems(){
-  const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
-  if(selected.length===0) return alert("Select items to gamble!");
-  const n = selected.length;
-  const rarityOrder=['grey','blue','purple','red','gold'];
-  const minRarity=rarityOrder.reduce((acc,r)=> selected.some(i=>i.classList.contains(r))?r:acc,'grey');
-  const baseOdds={grey:0.45,blue:0.35,purple:0.17,red:0.025,gold:0.005};
-  const odds={};
-  for(const r of rarityOrder){if(rarityOrder.indexOf(r)<rarityOrder.indexOf(minRarity)) odds[r]=0; else odds[r]=baseOdds[r];}
-  for(const r in odds) odds[r]+=n*0.002;
-  let sum=0;
-  for(const r in odds) sum+=odds[r];
-  for(const r in odds) odds[r]/=sum;
-  function weightedGambleRarity(){ const r=Math.random(); let total=0; for(const k in odds){total+=odds[k]; if(r<total) return k;} return minRarity;}
-  const rarity=weightedGambleRarity();
-  const item=getRandomItemForRarity(rarity);
-  if(n===1 && Math.random()<0.25 && rarity!=='grey'){ const downgradeIndex=Math.max(rarityOrder.indexOf(rarity)-1,0); item.rarity=rarityOrder[downgradeIndex]; item.condition=weightedCondition(); }
-  selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>inventory.splice(div.dataset.index,1));
-  inventory.push(item);
-  updateInventory();
-
-  // 🔥 Näytä keskellä animaatio saadusta itemistä
-  showGambleResult(item);
-
-  // ✨ Confetti effect
-  const divs=Array.from(inventoryEl.children);
-  const last=divs[divs.length-1];
-  for(let i=0;i<20;i++){
-    const p=document.createElement('div');
-    p.style.position='absolute';
-    p.style.width='6px';
-    p.style.height='6px';
-    p.style.background=['#FFD700','#FFEA00','#FFF5B0','#FFDD33'][Math.floor(Math.random()*4)];
-    p.style.borderRadius='50%';
-    p.style.left=last.offsetLeft+last.offsetWidth/2+'px';
-    p.style.top=last.offsetTop+last.offsetHeight/2+'px';
-    p.style.pointerEvents='none';
-    p.style.opacity=1;
-    p.style.zIndex=1000;
-    document.body.appendChild(p);
-    const vx=(Math.random()-0.5)*8, vy=(Math.random()-0.5)*8;
-    let life=30;
-    function frame(){
-      p.style.left=parseFloat(p.style.left)+vx+'px';
-      p.style.top=parseFloat(p.style.top)+vy+'px';
-      p.style.opacity=parseFloat(p.style.opacity)-0.03;
-      life--;
-      if(life>0) requestAnimationFrame(frame);
-      else p.remove();
+// ✅ Korjattu gambleItems
+function gambleItems() {
+    const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
+    if(selected.length === 0) return alert("Select items to gamble!");
+    const n = selected.length;
+    const rarityOrder = ['grey','blue','purple','red','gold'];
+    const minRarity = rarityOrder.reduce((acc,r) => selected.some(i => i.classList.contains(r)) ? r : acc, 'grey');
+    const baseOdds = { grey:0.45, blue:0.35, purple:0.17, red:0.025, gold:0.005 };
+    const odds = {};
+    for(const r of rarityOrder){
+        if(rarityOrder.indexOf(r) < rarityOrder.indexOf(minRarity)) odds[r] = 0;
+        else odds[r] = baseOdds[r];
     }
-    frame();
-  }
+    for(const r in odds) odds[r] += n*0.002;
+    let sum = 0;
+    for(const r in odds) sum += odds[r];
+    for(const r in odds) odds[r] /= sum;
+
+    function weightedGambleRarity(){
+        const r = Math.random();
+        let total = 0;
+        for(const k in odds){
+            total += odds[k];
+            if(r < total) return k;
+        }
+        return minRarity;
+    }
+
+    let rarity = weightedGambleRarity();
+    let item = getRandomItemForRarity(rarity);
+
+    // Downgrade max 1 rarity-taso jos yksittäinen item
+    if(n === 1 && Math.random() < 0.25 && rarity !== 'grey'){
+        const rarityIndex = rarityOrder.indexOf(rarity);
+        const downgradeIndex = Math.max(rarityIndex - 1, 0);
+        if(downgradeIndex !== rarityIndex){
+            rarity = rarityOrder[downgradeIndex];
+            item = getRandomItemForRarity(rarity);
+        }
+    }
+
+    selected.sort((a,b)=>b.dataset.index - a.dataset.index)
+            .forEach(div => inventory.splice(div.dataset.index,1));
+
+    inventory.push(item);
+    updateInventory();
+    showGambleResult(item);
+
+    // Confetti
+    const divs = Array.from(inventoryEl.children);
+    const last = divs[divs.length-1];
+    for(let i=0;i<20;i++){
+        const p = document.createElement('div');
+        p.style.position='absolute';
+        p.style.width='6px';
+        p.style.height='6px';
+        p.style.background=['#FFD700','#FFEA00','#FFF5B0','#FFDD33'][Math.floor(Math.random()*4)];
+        p.style.borderRadius='50%';
+        p.style.left=last.offsetLeft+last.offsetWidth/2+'px';
+        p.style.top=last.offsetTop+last.offsetHeight/2+'px';
+        p.style.pointerEvents='none';
+        p.style.opacity=1;
+        p.style.zIndex=1000;
+        document.body.appendChild(p);
+        const vx=(Math.random()-0.5)*8, vy=(Math.random()-0.5)*8;
+        let life=30;
+        function frame(){
+            p.style.left=parseFloat(p.style.left)+vx+'px';
+            p.style.top=parseFloat(p.style.top)+vy+'px';
+            p.style.opacity=parseFloat(p.style.opacity)-0.03;
+            life--;
+            if(life>0) requestAnimationFrame(frame);
+            else p.remove();
+        }
+        frame();
+    }
 }
 
 spinBtn.addEventListener('click',spinCase);
