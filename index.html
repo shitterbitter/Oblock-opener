@@ -14,143 +14,27 @@
   --accent:#ff9900;
   --bg-dark:#1e1e2f;
 }
-
-/* General reset */
-html,body{
-  margin:0;
-  height:100%;
-  font-family:'Inter',sans-serif;
-  overflow-x:hidden;
-  background:linear-gradient(135deg,var(--royal-blue-1),var(--royal-blue-2));
-  color:#fff;
-}
-
-/* Sparkle canvas */
+html,body{margin:0;height:100%;font-family:'Inter',sans-serif;overflow-x:hidden;background:linear-gradient(135deg,var(--royal-blue-1),var(--royal-blue-2));color:#fff;}
 #sparkleCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
-
-/* Main container */
-.container{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  padding:24px;
-  text-align:center;
-  z-index:1;
-  position:relative;
-}
-
-/* Roller panel */
-.roller-panel{
-  margin-top:40px;
-  padding:28px 20px;
-  border-radius:14px;
-  background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
-  border:1px solid rgba(255,255,255,0.06);
-  backdrop-filter:blur(6px);
-  box-shadow:0 18px 40px rgba(0,0,0,0.45);
-  width:fit-content;
-}
-
-/* Roller */
-.roller-container {
-  position: relative;
-  width: 400px;
-  height: 100px;
-  overflow: hidden;
-  margin: 20px auto;
-  border-radius: 16px;
-  border: 2px solid var(--accent);
-  background: var(--bg-dark);
-  box-shadow: inset 0 0 10px rgba(255,153,0,0.3);
-}
-.reel {
-  display:flex;
-  align-items:center;
-  height:100%;
-  will-change: transform;
-}
-.reel span {
-  min-width:100px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:2.5rem;
-  flex-shrink:0;
-  margin:0 2px;
-  border-radius:12px;
-  font-weight:800;
-  box-shadow: 0 0 5px rgba(0,0,0,0.5);
-}
-.indicator {
-  position:absolute;
-  top:0;
-  left:50%;
-  width:100px;
-  height:100%;
-  margin-left:-50px;
-  border:3px solid var(--accent);
-  pointer-events:none;
-  box-shadow: 0 0 10px var(--accent);
-}
-
-/* Inventory */
-.inventory{
-  margin-top:30px;
-  max-width:800px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  justify-content:center;
-  border-top:2px solid var(--accent);
-  padding-top:10px;
-}
-.item{
-  padding:10px 14px;
-  border-radius:12px;
-  font-weight:600;
-  min-width:70px;
-  text-align:center;
-  cursor:pointer;
-  user-select:none;
-  border:2px solid var(--accent);
-  box-shadow: 0 0 8px rgba(0,0,0,0.5);
-  position:relative;
-}
+.container{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;text-align:center;z-index:1;position:relative;}
+.roller-panel{margin-top:40px;padding:28px 20px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(6px);box-shadow:0 18px 40px rgba(0,0,0,0.45);width:fit-content;}
+.roller-container {position: relative;width: 400px;height: 100px;overflow: hidden;margin: 20px auto;border-radius: 16px;border: 2px solid var(--accent);background: var(--bg-dark);box-shadow: inset 0 0 10px rgba(255,153,0,0.3);}
+.reel {display:flex;align-items:center;height:100%;will-change: transform;}
+.reel span {min-width:100px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;margin:0 2px;border-radius:12px;font-weight:800;box-shadow: 0 0 5px rgba(0,0,0,0.5);position:relative;}
+.reel span .condition{position:absolute;top:4px;right:4px;font-size:0.6rem;font-weight:800;}
+.indicator {position:absolute;top:0;left:50%;width:100px;height:100%;margin-left:-50px;border:3px solid var(--accent);pointer-events:none;box-shadow: 0 0 10px var(--accent);}
+.inventory{margin-top:30px;max-width:800px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;border-top:2px solid var(--accent);padding-top:10px;}
+.item{padding:10px 14px;border-radius:12px;font-weight:600;min-width:70px;text-align:center;cursor:pointer;user-select:none;border:2px solid var(--accent);box-shadow: 0 0 8px rgba(0,0,0,0.5);position:relative;}
 .item.selected{outline:2px solid #fff;}
 .grey { background-color:#555;color:#fff; }
 .blue { background-color:#1e90ff;color:#fff; }
 .purple { background-color:#8b00ff;color:#fff; }
 .red { background-color:#e74c3c;color:#fff; }
 .gold { background-color:#ffd700;color:#111; }
-
-/* Buttons */
-.btn{
-  background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-  color:#111;
-  padding:12px 20px;
-  border-radius:14px;
-  border:none;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 10px 30px rgba(184,134,11,0.12);
-  margin:5px;
-}
+.item .condition{position:absolute;top:2px;right:4px;font-size:0.65rem;font-weight:800;}
+.btn{background:linear-gradient(180deg,var(--gold-1),var(--gold-2));color:#111;padding:12px 20px;border-radius:14px;border:none;font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(184,134,11,0.12);margin:5px;}
 .btn:active{transform:translateY(1px) scale(.995);}
-
-/* Story section */
-.story{
-  max-width:820px;
-  margin:40px auto;
-  padding:36px 22px;
-  background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,0.03);
-  opacity:0;
-  transform:translateY(20px);
-  transition:opacity .6s ease,transform .6s ease;
-}
+.story{max-width:820px;margin:40px auto;padding:36px 22px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px;border:1px solid rgba(255,255,255,0.03);opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
 .story.visible{opacity:1;transform:none;}
 .story h2{color:var(--gold-1);margin:0 0 10px;font-size:1.8rem;}
 </style>
@@ -180,9 +64,7 @@ html,body{
 
 <div class="story" id="story">
   <h2>Gold Gold Gold!</h2>
-  <p>
-    Step into the world of cases, where patience and trust in luck is tested. Collect weapons and items, gamble wisely and get the best inventory in the world!
-  </p>
+  <p>Step into the world of cases, where patience and trust in luck is tested. Collect weapons and items, gamble wisely and get the best inventory in the world !</p>
 </div>
 
 <script>
@@ -191,15 +73,29 @@ const canvas=document.getElementById('sparkleCanvas');
 const ctx=canvas.getContext('2d');
 function sizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
 sizeCanvas();
-const sparkles=[];for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
-function animateSparkles(){ctx.clearRect(0,0,canvas.width,canvas.height);for(const s of sparkles){ctx.beginPath();ctx.fillStyle=`rgba(255,215,130,${s.opacity})`;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();s.y-=s.speed;if(s.y<-8){s.y=canvas.height+6;s.x=Math.random()*canvas.width;}}requestAnimationFrame(animateSparkles);}
-animateSparkles();window.addEventListener('resize',sizeCanvas);
+const sparkles=[];
+for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
+function animateSparkles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(const s of sparkles){
+    ctx.beginPath();
+    ctx.fillStyle=`rgba(255,215,130,${s.opacity})`;
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+    s.y-=s.speed;
+    if(s.y<-8){s.y=canvas.height+6;s.x=Math.random()*canvas.width;}
+  }
+  requestAnimationFrame(animateSparkles);
+}
+animateSparkles();
+window.addEventListener('resize',sizeCanvas);
 
 // Story
 const story=document.getElementById('story');
 story.classList.add('visible');
 
-// Case opener logic
+// Items & conditions
+const conditions = ['FT','WW','MW','FN'];
 const itemsByRarity = {
   grey: [{name:'Pistol',emoji:'🔫'},{name:'Shotgun',emoji:'🛠️'},{name:'SMG',emoji:'🟡'}],
   blue: [{name:'Pistol',emoji:'🔫'},{name:'SMG',emoji:'🟡'},{name:'AR',emoji:'🔰'}],
@@ -208,17 +104,33 @@ const itemsByRarity = {
   gold: [{name:'Knife',emoji:'🔪'},{name:'Gloves',emoji:'🧤'}]
 };
 const rarityChances=[{rarity:'grey',chance:0.45},{rarity:'blue',chance:0.35},{rarity:'purple',chance:0.17},{rarity:'red',chance:0.025},{rarity:'gold',chance:0.005}];
-const conditions=['FT','WW','MW','FN']; // FT most common, then WW, MW, FN rarest
-
 let inventory=[];
 const reelEl=document.getElementById('reel');
 const inventoryEl=document.getElementById('inventory');
 const spinBtn=document.getElementById('spinBtn');
 const gambleBtn=document.getElementById('gambleBtn');
 
-function weightedRarity(){const r=Math.random();let sum=0;for(const w of rarityChances){sum+=w.chance;if(r<sum)return w.rarity;}return 'grey';}
-function weightedCondition(){const r=Math.random();if(r<0.4)return 'FT';if(r<0.7)return 'WW';if(r<0.9)return 'MW';return 'FN';}
-function getRandomItemForRarity(rarity){const pool=itemsByRarity[rarity];const item=pool[Math.floor(Math.random()*pool.length)];return {...item,rarity,condition:weightedCondition()};}
+function weightedRarity(){
+  const r=Math.random();
+  let sum=0;
+  for(const w of rarityChances){
+    sum+=w.chance;
+    if(r<sum) return w.rarity;
+  }
+  return 'grey';
+}
+
+function getRandomItemForRarity(rarity){
+  const pool=itemsByRarity[rarity];
+  const item=pool[Math.floor(Math.random()*pool.length)];
+  const conditionWeights = [0.4,0.35,0.2,0.05]; // FT>WW>MW>FN
+  let r=Math.random(),cumulative=0,cond='FT';
+  for(let i=0;i<conditions.length;i++){
+    cumulative+=conditionWeights[i];
+    if(r<cumulative){cond=conditions[i];break;}
+  }
+  return {...item, rarity, condition:cond};
+}
 
 function updateInventory(){
   inventoryEl.innerHTML='';
@@ -226,18 +138,10 @@ function updateInventory(){
     const div=document.createElement('div');
     div.className='item '+item.rarity;
     div.textContent=item.emoji+' '+item.name;
-
-    // Condition label top-right
-    const condLabel=document.createElement('div');
-    condLabel.style.position='absolute';
-    condLabel.style.top='2px';
-    condLabel.style.right='4px';
-    condLabel.style.fontSize='0.7rem';
-    condLabel.style.fontWeight='800';
-    condLabel.style.color='#fff';
-    condLabel.textContent=item.condition;
-    div.appendChild(condLabel);
-
+    const cond=document.createElement('span');
+    cond.className='condition';
+    cond.textContent=item.condition;
+    div.appendChild(cond);
     div.dataset.index=index;
     div.dataset.rarity=item.rarity;
     div.addEventListener('click',()=>div.classList.toggle('selected'));
@@ -245,37 +149,6 @@ function updateInventory(){
   });
 }
 
-function spawnParticleEffect(target){
-  const rect=target.getBoundingClientRect();
-  const particles=[];
-  const colors={'grey':'#fff','blue':'#1e90ff','purple':'#8b00ff','red':'#e74c3c','gold':'#ffd700'};
-  for(let i=0;i<25;i++){
-    const p={x:rect.left+rect.width/2,y:rect.top+rect.height/2,vx:(Math.random()-0.5)*6,vy:(Math.random()-1.5)*6,r:Math.random()*5+2,color:colors[target.classList[1]]};
-    particles.push(p);
-  }
-  const canvasParticle=document.createElement('canvas');
-  canvasParticle.style.position='fixed';
-  canvasParticle.style.left='0';
-  canvasParticle.style.top='0';
-  canvasParticle.style.pointerEvents='none';
-  canvasParticle.width=window.innerWidth;
-  canvasParticle.height=window.innerHeight;
-  document.body.appendChild(canvasParticle);
-  const ctx=canvasParticle.getContext('2d');
-
-  function frame(){
-    ctx.clearRect(0,0,canvasParticle.width,canvasParticle.height);
-    let alive=false;
-    for(const p of particles){
-      p.x+=p.vx;p.y+=p.vy;p.r*=0.94;
-      if(p.r>0.1){alive=true;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();}
-    }
-    if(alive)requestAnimationFrame(frame);else canvasParticle.remove();
-  }
-  frame();
-}
-
-// Roller
 function generateRollerArray(totalSlots=40){
   const finalRarity=weightedRarity();
   const finalItem=getRandomItemForRarity(finalRarity);
@@ -303,57 +176,97 @@ function spinCase(){
   const itemWidth=100;
   let start=null;
   function animate(timestamp){
-    if(!start)start=timestamp;
+    if(!start) start=timestamp;
     const progress=Math.min((timestamp-start)/duration,1);
     const ease=1-Math.pow(1-progress,3);
     const offset=ease*(reelArray.length-1)*itemWidth - midIndex*itemWidth;
     reelEl.style.transform=`translateX(-${offset}px)`;
-    if(progress<1)requestAnimationFrame(animate);
+    if(progress<1) requestAnimationFrame(animate);
     else{
       inventory.push(finalItem);
       updateInventory();
-      spawnParticleEffect(inventoryEl.children[inventory.length-1]);
       spinBtn.disabled=false;
     }
   }
   requestAnimationFrame(animate);
 }
 
-// Gamble logic with downgrade chance and amount effect
-function gambleItems(){
-  const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
-  if(selected.length===0)return alert("Select items to gamble!");
-  const rarities=selected.map(s=>s.dataset.rarity);
-  const maxRarityOrder={'grey':1,'blue':2,'purple':3,'red':4,'gold':5};
-  const minRarity=rarities.reduce((a,b)=>Math.max(a,maxRarityOrder[b]),0);
-  const n=selected.length;
+// Sparkles around won item
+function spawnSparkles(target){
+  const rect = target.getBoundingClientRect();
+  const particles = [];
+  const colors = {grey:'#ccc', blue:'#1e90ff', purple:'#8b00ff', red:'#e74c3c', gold:'#ffd700'};
+  for(let i=0;i<40;i++){
+    particles.push({
+      x: rect.left + rect.width/2,
+      y: rect.top + rect.height/2,
+      vx: (Math.random()-0.5)*4,
+      vy: (Math.random()-1.5)*4,
+      r: Math.random()*3+1,
+      color: colors[target.classList[1]],
+      life: Math.random()*30+30
+    });
+  }
+  const canvasP = document.createElement('canvas');
+  canvasP.width = window.innerWidth;
+  canvasP.height = window.innerHeight;
+  canvasP.style.position = 'fixed';
+  canvasP.style.left = '0';
+  canvasP.style.top = '0';
+  canvasP.style.pointerEvents = 'none';
+  document.body.appendChild(canvasP);
+  const ctx = canvasP.getContext('2d');
+  function animate(){
+    ctx.clearRect(0,0,canvasP.width,canvasP.height);
+    let alive=false;
+    for(const p of particles){
+      p.x+=p.vx;p.y+=p.vy;p.r*=0.95;p.life--;
+      if(p.r>0.1 && p.life>0){alive=true;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();}
+    }
+    if(alive) requestAnimationFrame(animate);
+    else canvasP.remove();
+  }
+  animate();
+}
 
-  const baseOdds={1:0.7,2:0.2,3:0.07,4:0.02,5:0.01}; // common to get same rarity
-  const finalOdds={grey:0,blue:0,purple:0,red:0,gold:0};
+function gambleItems(){
+  const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
+  if(selected.length===0) return alert("Select items to gamble!");
+  const rarities = selected.map(s=>s.dataset.rarity);
+  const maxRarityOrder = {grey:1, blue:2, purple:3, red:4, gold:5};
+  const minRarity = rarities.reduce((a,b)=>Math.max(a,maxRarityOrder[b]),0);
+  const n = selected.length;
+
+  const baseOdds = {1:0.7,2:0.2,3:0.07,4:0.02,5:0.01};
+  const finalOdds = {grey:0, blue:0, purple:0, red:0, gold:0};
   Object.keys(maxRarityOrder).forEach(r=>{
-    const order=maxRarityOrder[r];
-    if(order<minRarity){finalOdds[r]=0;}
-    else if(order===minRarity){finalOdds[r]=baseOdds[order]+0.05*n;}
-    else{finalOdds[r]=baseOdds[order]*0.3;}
+    const order = maxRarityOrder[r];
+    if(order<minRarity){ finalOdds[r] = 0; }
+    else if(order===minRarity){ finalOdds[r] = baseOdds[order]+0.02*n; }
+    else{ finalOdds[r] = baseOdds[order]*0.15; }
   });
-  // normalize
-  const sum=Object.values(finalOdds).reduce((a,b)=>a+b,0);
+
+  const sum = Object.values(finalOdds).reduce((a,b)=>a+b,0);
   Object.keys(finalOdds).forEach(k=>finalOdds[k]/=sum);
 
   function weightedGambleRarity(){
-    const r=Math.random();
+    const r = Math.random();
     let total=0;
-    for(const k in finalOdds){total+=finalOdds[k];if(r<total)return k;}
+    for(const k in finalOdds){ total+=finalOdds[k]; if(r<total) return k; }
     return 'grey';
   }
 
-  const rarity=weightedGambleRarity();
-  const item=getRandomItemForRarity(rarity);
+  const rarity = weightedGambleRarity();
+  const item = getRandomItemForRarity(rarity);
 
-  selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>{inventory.splice(div.dataset.index,1);});
+  selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>{
+    inventory.splice(div.dataset.index,1);
+  });
   inventory.push(item);
   updateInventory();
-  spawnParticleEffect(inventoryEl.children[inventory.length-1]);
+
+  // Sparkles around the received item
+  spawnSparkles(inventoryEl.children[inventory.length-1]);
 }
 
 spinBtn.addEventListener('click',spinCase);
