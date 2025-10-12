@@ -93,7 +93,7 @@ window.addEventListener('resize',sizeCanvas);
 const story=document.getElementById('story');
 story.classList.add('visible');
 
-// Case opener logic
+// Items & logic
 const itemsByRarity = {
   grey: [{name:'Pistol',emoji:'🔫'},{name:'Shotgun',emoji:'🛠️'},{name:'SMG',emoji:'🟡'}],
   blue: [{name:'Pistol',emoji:'🔫'},{name:'SMG',emoji:'🟡'},{name:'AR',emoji:'🔰'}],
@@ -131,74 +131,86 @@ function updateInventory(){
 // ✅ Rulla
 function spinCase() {
   spinBtn.disabled = true;
-  const totalSlots = 10; const cycles = 6;
-  const finalRarity = weightedRarity(); const finalItem = getRandomItemForRarity(finalRarity);
+  const totalSlots = 10; 
+  const cycles = 6;
+  const finalRarity = weightedRarity(); 
+  const finalItem = getRandomItemForRarity(finalRarity);
   const reelArray = [];
   for (let i = 0; i < totalSlots; i++) {
-    if (i === Math.floor(totalSlots / 2)) reelArray.push(finalItem);
-    else reelArray.push(getRandomItemForRarity(weightedRarity()));
+      if(i === Math.floor(totalSlots/2)) reelArray.push(finalItem);
+      else {
+          const r = Math.random();
+          let rarity;
+          if(r < 0.5) rarity='grey';
+          else if(r<0.85) rarity='blue';
+          else rarity='purple';
+          reelArray.push(getRandomItemForRarity(rarity));
+      }
   }
-  const fullReel = [];
-  for (let i = 0; i < cycles; i++) fullReel.push(...reelArray);
-  reelEl.innerHTML = '';
-  fullReel.forEach(item => { const span = document.createElement('span'); span.textContent = item.emoji; span.className = item.rarity; reelEl.appendChild(span); });
+  const fullReel=[];
+  for(let i=0;i<cycles;i++) fullReel.push(...reelArray);
+  reelEl.innerHTML='';
+  fullReel.forEach(item => {
+      const span=document.createElement('span');
+      span.textContent=item.emoji;
+      span.className=item.rarity;
+      reelEl.appendChild(span);
+  });
 
-  requestAnimationFrame(() => {
-    const firstSpan = reelEl.querySelector('span');
-    const spanWidth = firstSpan.offsetWidth + 4;
-    const containerWidth = reelEl.parentElement.offsetWidth;
-    const centerOffset = containerWidth / 2 - spanWidth / 2;
-    const finalIndex = Math.floor(totalSlots / 2) + (cycles - 1) * totalSlots;
-    const targetOffset = finalIndex * spanWidth - centerOffset;
-    const duration = 4000; let start = null;
-    function animate(ts) {
-      if (!start) start = ts;
-      const progress = Math.min((ts - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3);
-      reelEl.style.transform = `translateX(-${ease * targetOffset}px)`;
-      if (progress < 1) requestAnimationFrame(animate);
-      else { inventory.push(finalItem); updateInventory(); spinBtn.disabled = false; }
-    }
-    requestAnimationFrame(animate);
+  requestAnimationFrame(()=>{
+      const firstSpan=reelEl.querySelector('span');
+      const spanWidth=firstSpan.offsetWidth+4;
+      const containerWidth=reelEl.parentElement.offsetWidth;
+      const centerOffset = containerWidth/2 - spanWidth/2;
+      const finalIndex = Math.floor(totalSlots/2) + (cycles-1)*totalSlots;
+      const targetOffset = finalIndex * spanWidth - centerOffset;
+      const duration = 4000; let start=null;
+      function animate(ts){
+          if(!start) start=ts;
+          const progress=Math.min((ts-start)/duration,1);
+          const ease = 1 - Math.pow(1-progress,3);
+          reelEl.style.transform = `translateX(-${ease*targetOffset}px)`;
+          if(progress<1) requestAnimationFrame(animate);
+          else { inventory.push(finalItem); updateInventory(); spinBtn.disabled=false; }
+      }
+      requestAnimationFrame(animate);
   });
 }
 
-// 🎯 Keskelle ilmestyvä gamble-item
-function showGambleResult(item) {
+// 🎯 Gamble result center animation
+function showGambleResult(item){
     const animDiv = document.createElement('div');
-    animDiv.className = 'item ' + item.rarity; // sama luokka kuin inventoryssa
-    animDiv.style.position = 'fixed';
-    animDiv.style.left = '50%';
-    animDiv.style.top = '50%';
-    animDiv.style.transform = 'translate(-50%, -50%) scale(0)';
-    animDiv.style.zIndex = 10000;
-    animDiv.style.fontSize = '2rem';
-    animDiv.style.minWidth = '100px';
-    animDiv.style.padding = '12px 16px';
-    animDiv.style.textAlign = 'center';
-    animDiv.style.pointerEvents = 'none';
+    animDiv.className = 'item '+item.rarity;
+    animDiv.style.position='fixed';
+    animDiv.style.left='50%';
+    animDiv.style.top='50%';
+    animDiv.style.transform='translate(-50%,-50%) scale(0)';
+    animDiv.style.zIndex=10000;
+    animDiv.style.fontSize='1.5rem';
+    animDiv.style.minWidth='80px';
+    animDiv.style.maxWidth='140px';
+    animDiv.style.padding='8px 12px';
+    animDiv.style.textAlign='center';
+    animDiv.style.pointerEvents='none';
+    animDiv.style.whiteSpace='nowrap';
     animDiv.textContent = item.emoji + ' ' + item.name;
-
     const cond = document.createElement('span');
-    cond.className = 'condition-tag';
+    cond.className='condition-tag';
     cond.textContent = item.condition;
     animDiv.appendChild(cond);
-
     document.body.appendChild(animDiv);
 
-    let scale = 0;
-    let opacity = 0;
-    let duration = 60;
+    let scale = 0; let opacity=0;
+    let duration=30; let fade=20;
     function animate(){
-        if(duration-- > 0){
-            scale += 0.05; opacity += 0.05;
-            animDiv.style.transform = `translate(-50%, -50%) scale(${scale})`;
-            animDiv.style.opacity = opacity;
+        if(duration-->0){
+            scale+=0.05; opacity+=0.05;
+            animDiv.style.transform=`translate(-50%,-50%) scale(${scale})`;
+            animDiv.style.opacity=opacity;
             requestAnimationFrame(animate);
         } else {
-            let fade=30;
             function fadeOut(){
-                if(fade-- > 0){ animDiv.style.opacity -= 0.03; requestAnimationFrame(fadeOut); } 
+                if(fade-->0){ animDiv.style.opacity-=0.05; requestAnimationFrame(fadeOut); }
                 else animDiv.remove();
             }
             fadeOut();
@@ -209,11 +221,11 @@ function showGambleResult(item) {
 
 // ✅ Gamble
 function gambleItems(){
-    const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
+    const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
     if(selected.length===0) return alert("Select items to gamble!");
-    const n=selected.length;
+    const n = selected.length;
     const rarityOrder=['grey','blue','purple','red','gold'];
-    const minRarity=rarityOrder.reduce((acc,r)=> selected.some(i=>i.classList.contains(r))?r:acc,'grey');
+    const minRarity = rarityOrder.reduce((acc,r)=> selected.some(i=>i.classList.contains(r))?r:acc,'grey');
     const baseOdds={grey:0.45,blue:0.35,purple:0.17,red:0.025,gold:0.005};
     const odds={};
     for(const r of rarityOrder){
@@ -221,22 +233,15 @@ function gambleItems(){
         else odds[r]=baseOdds[r];
     }
     for(const r in odds) odds[r]+=n*0.002;
-    let sum=0;
-    for(const r in odds) sum+=odds[r];
-    for(const r in odds) odds[r]/=sum;
-
-    function weightedGambleRarity(){ const r=Math.random(); let total=0; for(const k in odds){ total+=odds[k]; if(r<total) return k; } return minRarity; }
+    let sum=0; for(const r in odds) sum+=odds[r]; for(const r in odds) odds[r]/=sum;
+    function weightedGambleRarity(){ const r=Math.random(); let total=0; for(const k in odds){ total+=odds[k]; if(r<total) return k;} return minRarity; }
 
     let rarity = weightedGambleRarity();
     let item = getRandomItemForRarity(rarity);
-
     if(n===1 && Math.random()<0.25 && rarity!=='grey'){
         const rarityIndex = rarityOrder.indexOf(rarity);
-        const downgradeIndex = Math.max(rarityIndex - 1, 0);
-        if(downgradeIndex !== rarityIndex){
-            rarity = rarityOrder[downgradeIndex];
-            item = getRandomItemForRarity(rarity);
-        }
+        const downgradeIndex = Math.max(rarityIndex-1,0);
+        if(downgradeIndex !== rarityIndex){ rarity=rarityOrder[downgradeIndex]; item=getRandomItemForRarity(rarity); }
     }
 
     selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>inventory.splice(div.dataset.index,1));
@@ -245,30 +250,25 @@ function gambleItems(){
     showGambleResult(item);
 
     // Confetti
-    const divs=Array.from(inventoryEl.children);
-    const last=divs[divs.length-1];
+    const divs = Array.from(inventoryEl.children);
+    const last = divs[divs.length-1];
     for(let i=0;i<20;i++){
         const p=document.createElement('div');
         p.style.position='absolute';
-        p.style.width='6px';
-        p.style.height='6px';
+        p.style.width='6px'; p.style.height='6px';
         p.style.background=['#FFD700','#FFEA00','#FFF5B0','#FFDD33'][Math.floor(Math.random()*4)];
         p.style.borderRadius='50%';
         p.style.left=last.offsetLeft+last.offsetWidth/2+'px';
         p.style.top=last.offsetTop+last.offsetHeight/2+'px';
         p.style.pointerEvents='none';
-        p.style.opacity=1;
-        p.style.zIndex=1000;
+        p.style.opacity=1; p.style.zIndex=1000;
         document.body.appendChild(p);
-        const vx=(Math.random()-0.5)*8, vy=(Math.random()-0.5)*8;
-        let life=30;
+        const vx=(Math.random()-0.5)*8, vy=(Math.random()-0.5)*8; let life=30;
         function frame(){
             p.style.left=parseFloat(p.style.left)+vx+'px';
             p.style.top=parseFloat(p.style.top)+vy+'px';
-            p.style.opacity=parseFloat(p.style.opacity)-0.03;
-            life--;
-            if(life>0) requestAnimationFrame(frame);
-            else p.remove();
+            p.style.opacity-=0.03; life--;
+            if(life>0) requestAnimationFrame(frame); else p.remove();
         }
         frame();
     }
