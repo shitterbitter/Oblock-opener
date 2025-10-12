@@ -246,28 +246,18 @@ function updateInventory(){
   });
 }
 
-// ✅ Korjattu rulla
-function generateRollerArray(totalSlots = 40) {
-  const finalRarity = weightedRarity();
-  const finalItem = getRandomItemForRarity(finalRarity);
-  const array = [];
-
-  for (let i = 0; i < totalSlots; i++) {
-    if (i === Math.floor(totalSlots / 2)) {
-      array.push(finalItem);
-    } else {
-      const r = weightedRarity();
-      array.push(getRandomItemForRarity(r));
-    }
-  }
-
-  return { array, midIndex: Math.floor(totalSlots / 2), finalItem };
-}
-
+// ✅ Korjattu rulla, animaatio toimii oikein
 function spinCase() {
   spinBtn.disabled = true;
-  const { array: reelArray, midIndex, finalItem } = generateRollerArray();
-  const totalSlots = reelArray.length;
+  const totalSlots = 40;
+  const finalRarity = weightedRarity();
+  const finalItem = getRandomItemForRarity(finalRarity);
+
+  const reelArray = [];
+  for (let i = 0; i < totalSlots; i++) {
+    if (i === Math.floor(totalSlots / 2)) reelArray.push(finalItem);
+    else reelArray.push(getRandomItemForRarity(weightedRarity()));
+  }
 
   reelEl.innerHTML = '';
   reelArray.forEach(item => {
@@ -279,23 +269,22 @@ function spinCase() {
 
   requestAnimationFrame(() => {
     const firstSpan = reelEl.querySelector('span');
-    const style = getComputedStyle(firstSpan);
-    const itemFullWidth = firstSpan.offsetWidth + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+    const spanWidth = firstSpan.offsetWidth + 4;
     const containerWidth = reelEl.parentElement.offsetWidth;
-    const centerOffset = containerWidth / 2 - itemFullWidth / 2;
+    const centerOffset = containerWidth / 2 - spanWidth / 2;
 
-    const extraCycles = 4;
-    const finalTarget = ((totalSlots * extraCycles) + midIndex) * itemFullWidth - centerOffset;
+    const cycles = 5;
+    const finalIndex = Math.floor(totalSlots / 2);
+    const targetOffset = (totalSlots * cycles + finalIndex) * spanWidth - centerOffset;
 
-    const duration = 5000;
+    const duration = 4000;
     let start = null;
 
-    function animate(timestamp) {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
+    function animate(ts) {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
-      const offset = ease * finalTarget;
-      reelEl.style.transform = `translateX(-${offset}px)`;
+      reelEl.style.transform = `translateX(-${ease * targetOffset}px)`;
       if (progress < 1) requestAnimationFrame(animate);
       else {
         inventory.push(finalItem);
@@ -307,7 +296,7 @@ function spinCase() {
   });
 }
 
-// Gambling logic (ennallaan)
+// Gambling logic (sama kuin ennen)
 function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
