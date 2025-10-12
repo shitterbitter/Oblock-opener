@@ -15,171 +15,53 @@
   --bg-dark:#1e1e2f;
 }
 html,body{
-  margin:0;
-  height:100%;
-  font-family:'Inter',sans-serif;
-  overflow-x:hidden;
-  background:linear-gradient(135deg,var(--royal-blue-1),var(--royal-blue-2));
-  color:#fff;
+  margin:0; height:100%; font-family:'Inter',sans-serif; overflow-x:hidden; 
+  background:linear-gradient(135deg,var(--royal-blue-1),var(--royal-blue-2)); color:#fff;
 }
 #sparkleCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
-.container{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  padding:24px;
-  text-align:center;
-  z-index:1;
-  position:relative;
-}
-.roller-panel{
-  margin-top:40px;
-  padding:28px 20px;
-  border-radius:14px;
-  background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
-  border:1px solid rgba(255,255,255,0.06);
-  backdrop-filter:blur(6px);
-  box-shadow:0 18px 40px rgba(0,0,0,0.45);
-  width:fit-content;
-}
-.roller-container {
-  position: relative;
-  width: 400px;
-  height: 100px;
-  overflow: hidden;
-  margin: 20px auto;
-  border-radius: 16px;
-  border: 2px solid var(--accent);
-  background: var(--bg-dark);
-  box-shadow: inset 0 0 10px rgba(255,153,0,0.3);
-}
-.reel {
-  display:flex;
-  align-items:center;
-  height:100%;
-  will-change: transform;
-}
-.reel span {
-  min-width:100px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:2.5rem;
-  flex-shrink:0;
-  margin:0 2px;
-  border-radius:12px;
-  font-weight:800;
-  box-shadow: 0 0 5px rgba(0,0,0,0.5);
-  position:relative;
-}
-.condition-tag{
-  position:absolute;
-  top:2px;
-  right:4px;
-  font-size:0.6rem;
-  font-weight:800;
-  color:#fff;
-  text-shadow:0 0 3px rgba(0,0,0,0.7);
-}
-/* Keltainen viiva-indikaattori */
-.indicator {
-  position:absolute;
-  top:20%;
-  left:50%;
-  width:4px;
-  height:60%;
-  margin-left:-2px;
-  pointer-events:none;
-  background:var(--gold-1);
-  box-shadow: 0 0 12px rgba(255,215,107,0.9);
-  border-radius:2px;
-  z-index:2;
-}
-.inventory{
-  margin-top:30px;
-  max-width:800px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  justify-content:center;
-  border-top:2px solid var(--accent);
-  padding-top:10px;
-}
-.item{
-  padding:10px 14px;
-  border-radius:12px;
-  font-weight:600;
-  min-width:70px;
-  text-align:center;
-  cursor:pointer;
-  user-select:none;
-  border:2px solid var(--accent);
-  box-shadow: 0 0 8px rgba(0,0,0,0.5);
-  position:relative;
-}
+.container{ min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:24px; text-align:center; z-index:1; position:relative; }
+.roller-panel{ margin-top:40px; padding:28px 20px; border-radius:14px; background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(6px); box-shadow:0 18px 40px rgba(0,0,0,0.45); width:fit-content; }
+.roller-container { position: relative; width: 400px; height: 100px; overflow: hidden; margin: 20px auto; border-radius: 16px; border: 2px solid var(--accent); background: var(--bg-dark); box-shadow: inset 0 0 10px rgba(255,153,0,0.3); }
+.reel { display:flex; align-items:center; height:100%; will-change: transform; }
+.reel span { min-width:100px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; flex-shrink:0; margin:0 2px; border-radius:12px; font-weight:800; box-shadow: 0 0 5px rgba(0,0,0,0.5); position:relative; }
+.condition-tag{ position:absolute; top:2px; right:4px; font-size:0.6rem; font-weight:800; color:#fff; text-shadow:0 0 3px rgba(0,0,0,0.7); }
+.indicator { position:absolute; top:20%; left:50%; width:4px; height:60%; margin-left:-2px; pointer-events:none; background:var(--gold-1); box-shadow: 0 0 12px rgba(255,215,107,0.9); border-radius:2px; z-index:2; }
+.inventory{ margin-top:30px; max-width:800px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center; border-top:2px solid var(--accent); padding-top:10px; }
+.item{ padding:10px 14px; border-radius:12px; font-weight:600; min-width:70px; text-align:center; cursor:pointer; user-select:none; border:2px solid var(--accent); box-shadow: 0 0 8px rgba(0,0,0,0.5); position:relative; }
 .item.selected{outline:2px solid #fff;}
 .grey { background-color:#555;color:#fff; }
 .blue { background-color:#1e90ff;color:#fff; }
 .purple { background-color:#8b00ff;color:#fff; }
 .red { background-color:#e74c3c;color:#fff; }
 .gold { background-color:#ffd700;color:#111; }
-.btn{
-  background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-  color:#111;
-  padding:12px 20px;
-  border-radius:14px;
-  border:none;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 10px 30px rgba(184,134,11,0.12);
-  margin:5px;
-}
+.btn{ background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#111; padding:12px 20px; border-radius:14px; border:none; font-weight:800; cursor:pointer; box-shadow:0 10px 30px rgba(184,134,11,0.12); margin:5px; }
 .btn:active{transform:translateY(1px) scale(.995);}
-.story{
-  max-width:820px;
-  margin:40px auto;
-  padding:36px 22px;
-  background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,0.03);
-  opacity:0;
-  transform:translateY(20px);
-  transition:opacity .6s ease,transform .6s ease;
-}
+.story{ max-width:820px; margin:40px auto; padding:36px 22px; background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent); border-radius:12px; border:1px solid rgba(255,255,255,0.03); opacity:0; transform:translateY(20px); transition:opacity .6s ease,transform .6s ease; }
 .story.visible{opacity:1;transform:none;}
 .story h2{color:var(--gold-1);margin:0 0 10px;font-size:1.8rem;}
 </style>
 </head>
 <body>
-
 <canvas id="sparkleCanvas"></canvas>
-
 <div class="container">
-  <h1>💥 Case Opening Go</h1>
-  
-  <div class="roller-panel">
-    <div class="roller-container">
-      <div class="reel" id="reel"></div>
-      <div class="indicator"></div>
-    </div>
-    <button class="btn" id="spinBtn">Open Case</button>
-    
-    <h2>Inventory</h2>
-    <div class="inventory" id="inventory"></div>
-    <div class="gamble-section">
-      <h2>Gamble Selected Items</h2>
-      <button class="btn" id="gambleBtn">Gamble</button>
-    </div>
-  </div>
+<h1>💥 Case Opening Go</h1>
+<div class="roller-panel">
+<div class="roller-container">
+<div class="reel" id="reel"></div>
+<div class="indicator"></div>
 </div>
-
+<button class="btn" id="spinBtn">Open Case</button>
+<h2>Inventory</h2>
+<div class="inventory" id="inventory"></div>
+<div class="gamble-section">
+<h2>Gamble Selected Items</h2>
+<button class="btn" id="gambleBtn">Gamble</button>
+</div>
+</div>
+</div>
 <div class="story" id="story">
-  <h2>💰 Gold Gold Gold!</h2>
-  <p>
-    Step into the world of cases, where patience and trust in luck is tested. Collect weapons and items, gamble wisely and get the best inventory in the world!
-  </p>
+<h2>💰 Gold Gold Gold!</h2>
+<p> Step into the world of cases, where patience and trust in luck is tested. Collect weapons and items, gamble wisely and get the best inventory in the world! </p>
 </div>
 
 <script>
@@ -189,7 +71,9 @@ const ctx=canvas.getContext('2d');
 function sizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
 sizeCanvas();
 const sparkles=[];
-for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
+for(let i=0;i<100;i++){
+  sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});
+}
 function animateSparkles(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   for(const s of sparkles){
@@ -219,17 +103,28 @@ const itemsByRarity = {
 };
 const rarityChances=[{rarity:'grey',chance:0.45},{rarity:'blue',chance:0.35},{rarity:'purple',chance:0.17},{rarity:'red',chance:0.025},{rarity:'gold',chance:0.005}];
 const conditionChances=[{condition:'FT',chance:0.40},{condition:'WW',chance:0.30},{condition:'MW',chance:0.20},{condition:'FN',chance:0.10}];
-
 let inventory=[];
 const reelEl=document.getElementById('reel');
 const inventoryEl=document.getElementById('inventory');
 const spinBtn=document.getElementById('spinBtn');
 const gambleBtn=document.getElementById('gambleBtn');
 
-function weightedRarity(){const r=Math.random();let sum=0;for(const w of rarityChances){sum+=w.chance;if(r<sum) return w.rarity;}return 'grey';}
-function weightedCondition(){const r=Math.random();let sum=0;for(const w of conditionChances){sum+=w.chance;if(r<sum) return w.condition;}return 'FT';}
-function getRandomItemForRarity(rarity){const pool=itemsByRarity[rarity];const item=pool[Math.floor(Math.random()*pool.length)];const condition=weightedCondition();return {...item, rarity, condition};}
-
+function weightedRarity(){
+  const r=Math.random();let sum=0;
+  for(const w of rarityChances){sum+=w.chance;if(r<sum) return w.rarity;}
+  return 'grey';
+}
+function weightedCondition(){
+  const r=Math.random();let sum=0;
+  for(const w of conditionChances){sum+=w.chance;if(r<sum) return w.condition;}
+  return 'FT';
+}
+function getRandomItemForRarity(rarity){
+  const pool=itemsByRarity[rarity];
+  const item=pool[Math.floor(Math.random()*pool.length)];
+  const condition=weightedCondition();
+  return {...item, rarity, condition};
+}
 function updateInventory(){
   inventoryEl.innerHTML='';
   inventory.forEach((item,index)=>{
@@ -246,141 +141,141 @@ function updateInventory(){
   });
 }
 
-// Roller snapping logic
-function generateRollerArray(totalSlots=40){
-  const finalRarity=weightedRarity();
-  const finalItem=getRandomItemForRarity(finalRarity);
-  const array=[];
-  for(let i=0;i<totalSlots;i++){
-    const r=weightedRarity();
-    array.push(getRandomItemForRarity(r));
-  }
-  const midIndex=Math.floor(totalSlots/2);
-  array[midIndex]=finalItem;
-  return {array, finalItem, midIndex};
-}
-
-function spinCase(){
+// ✅ Korjattu rulla
+function spinCase() {
   spinBtn.disabled = true;
-  let {array: reelArray, finalItem, midIndex} = generateRollerArray();
-  const totalSlots = reelArray.length;
-
-  const startOffset = Math.floor(Math.random() * (totalSlots - 2)) + 1;
-  reelArray = [...reelArray.slice(startOffset), ...reelArray.slice(0, startOffset)];
-
+  const totalSlots = 10; // slots per cycle
+  const cycles = 6;
+  const finalRarity = weightedRarity();
+  const finalItem = getRandomItemForRarity(finalRarity);
+  const reelArray = [];
+  for (let i = 0; i < totalSlots; i++) {
+    if (i === Math.floor(totalSlots / 2)) reelArray.push(finalItem);
+    else reelArray.push(getRandomItemForRarity(weightedRarity()));
+  }
+  const fullReel = [];
+  for (let i = 0; i < cycles; i++) fullReel.push(...reelArray);
   reelEl.innerHTML = '';
-  reelArray.forEach(item=>{
-    const span=document.createElement('span');
-    span.textContent=item.emoji;
-    span.className=item.rarity;
+  fullReel.forEach(item => {
+    const span = document.createElement('span');
+    span.textContent = item.emoji;
+    span.className = item.rarity;
     reelEl.appendChild(span);
   });
 
-  const duration=5000;
-  const itemWidth=100;
-  let start=null;
-
-  function animate(timestamp){
-    if(!start) start=timestamp;
-    const progress=Math.min((timestamp-start)/duration,1);
-    const ease=1-Math.pow(1-progress,3);
-    const offset=ease*(totalSlots-1)*itemWidth;
-    reelEl.style.transform=`translateX(-${offset}px)`;
-    if(progress<1) requestAnimationFrame(animate);
-    else{
-      inventory.push(finalItem);
-      updateInventory();
-      spinBtn.disabled=false;
+  requestAnimationFrame(() => {
+    const firstSpan = reelEl.querySelector('span');
+    const spanWidth = firstSpan.offsetWidth + 4;
+    const containerWidth = reelEl.parentElement.offsetWidth;
+    const centerOffset = containerWidth / 2 - spanWidth / 2;
+    const finalIndex = Math.floor(totalSlots / 2) + (cycles - 1) * totalSlots;
+    const targetOffset = finalIndex * spanWidth - centerOffset;
+    const duration = 4000;
+    let start = null;
+    function animate(ts) {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      reelEl.style.transform = `translateX(-${ease * targetOffset}px)`;
+      if (progress < 1) requestAnimationFrame(animate);
+      else { inventory.push(finalItem); updateInventory(); spinBtn.disabled = false; }
     }
+    requestAnimationFrame(animate);
+  });
+}
+
+// 🔥 Keskelle ilmestyvä gamble-item animaatio
+function showGambleResult(item) {
+  const rarityColors = {
+    grey: '#555',
+    blue: '#1e90ff',
+    purple: '#8b00ff',
+    red: '#e74c3c',
+    gold: '#FFD700'
+  };
+  const animDiv = document.createElement('div');
+  animDiv.style.position = 'fixed';
+  animDiv.style.left = '50%';
+  animDiv.style.top = '50%';
+  animDiv.style.transform = 'translate(-50%, -50%) scale(0)';
+  animDiv.style.padding = '40px 60px';
+  animDiv.style.borderRadius = '20px';
+  animDiv.style.background = rarityColors[item.rarity];
+  animDiv.style.color = item.rarity === 'gold' ? '#111' : '#fff';
+  animDiv.style.fontSize = '2rem';
+  animDiv.style.fontWeight = '800';
+  animDiv.style.textAlign = 'center';
+  animDiv.style.boxShadow = `0 0 30px ${rarityColors[item.rarity]}aa`;
+  animDiv.style.zIndex = 2000;
+  animDiv.textContent = `${item.emoji} ${item.name}`;
+  document.body.appendChild(animDiv);
+  let scale = 0;
+  function animate() {
+    scale += 0.05;
+    animDiv.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    if(scale < 1) requestAnimationFrame(animate);
+    else setTimeout(() => {
+      animDiv.style.transition = 'opacity 0.5s ease';
+      animDiv.style.opacity = 0;
+      setTimeout(() => animDiv.remove(), 500);
+    }, 1000);
   }
   requestAnimationFrame(animate);
 }
 
-// Gamble overlay korjattu
-function showGambleResult(item, callback){
-  const overlay=document.createElement('div');
-  overlay.style.position='fixed';
-  overlay.style.top='50%';
-  overlay.style.left='50%';
-  overlay.style.transform='translate(-50%,-50%) scale(0.8)';
-  overlay.style.padding='30px 40px';
-  overlay.style.background=({
-    grey:'#555',
-    blue:'#1e90ff',
-    purple:'#8b00ff',
-    red:'#e74c3c',
-    gold:'#ffd700'
-  })[item.rarity];
-  overlay.style.color=item.rarity==='gold'?'#111':'#fff';
-  overlay.style.border='3px solid var(--accent)';
-  overlay.style.borderRadius='16px';
-  overlay.style.fontSize='2rem';
-  overlay.style.fontWeight='800';
-  overlay.style.textAlign='center';
-  overlay.style.zIndex='2000';
-  overlay.style.opacity='0';
-  overlay.textContent=item.emoji+' '+item.name;
-  document.body.appendChild(overlay);
-
-  overlay.animate([
-    {opacity:0, transform:'translate(-50%,-50%) scale(0.8)'},
-    {opacity:1, transform:'translate(-50%,-50%) scale(1.1)'},
-    {opacity:1, transform:'translate(-50%,-50%) scale(1)'}
-  ], {duration:400, easing:'ease-out'});
-
-  setTimeout(()=>{
-    overlay.animate([
-      {opacity:1, transform:'translate(-50%,-50%) scale(1)'},
-      {opacity:0, transform:'translate(-50%,-50%) scale(0.8)'}
-    ], {duration:500, easing:'ease-in'}).onfinish = () => {
-      overlay.remove();
-      if(callback) callback();
-    };
-  },1500);
-}
-
 // Gambling logic
 function gambleItems(){
-  const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
+  const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
-  const n=selected.length;
+  const n = selected.length;
   const rarityOrder=['grey','blue','purple','red','gold'];
   const minRarity=rarityOrder.reduce((acc,r)=> selected.some(i=>i.classList.contains(r))?r:acc,'grey');
-
   const baseOdds={grey:0.45,blue:0.35,purple:0.17,red:0.025,gold:0.005};
   const odds={};
-  for(const r of rarityOrder){
-    if(rarityOrder.indexOf(r)<rarityOrder.indexOf(minRarity)) odds[r]=0;
-    else odds[r]=baseOdds[r];
-  }
-
+  for(const r of rarityOrder){if(rarityOrder.indexOf(r)<rarityOrder.indexOf(minRarity)) odds[r]=0; else odds[r]=baseOdds[r];}
   for(const r in odds) odds[r]+=n*0.002;
-  let sum=0; for(const r in odds) sum+=odds[r]; for(const r in odds) odds[r]/=sum;
-
-  function weightedGambleRarity(){
-    const r=Math.random();
-    let total=0;
-    for(const k in odds){total+=odds[k];if(r<total) return k;}
-    return minRarity;
-  }
-
+  let sum=0;
+  for(const r in odds) sum+=odds[r];
+  for(const r in odds) odds[r]/=sum;
+  function weightedGambleRarity(){ const r=Math.random(); let total=0; for(const k in odds){total+=odds[k]; if(r<total) return k;} return minRarity;}
   const rarity=weightedGambleRarity();
   const item=getRandomItemForRarity(rarity);
-
-  if(n===1 && Math.random()<0.25 && rarity!=='grey'){
-    const downgradeIndex=Math.max(rarityOrder.indexOf(rarity)-1,0);
-    item.rarity=rarityOrder[downgradeIndex];
-    item.condition=weightedCondition();
-  }
-
-  // Poistetaan valitut itemit
+  if(n===1 && Math.random()<0.25 && rarity!=='grey'){ const downgradeIndex=Math.max(rarityOrder.indexOf(rarity)-1,0); item.rarity=rarityOrder[downgradeIndex]; item.condition=weightedCondition(); }
   selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>inventory.splice(div.dataset.index,1));
+  inventory.push(item);
+  updateInventory();
 
-  // Näytetään overlay ja lisätään inventory vasta fade-outin jälkeen
-  showGambleResult(item, ()=>{
-    inventory.push(item);
-    updateInventory();
-  });
+  // 🔥 Näytä keskellä animaatio saadusta itemistä
+  showGambleResult(item);
+
+  // ✨ Confetti effect
+  const divs=Array.from(inventoryEl.children);
+  const last=divs[divs.length-1];
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.style.position='absolute';
+    p.style.width='6px';
+    p.style.height='6px';
+    p.style.background=['#FFD700','#FFEA00','#FFF5B0','#FFDD33'][Math.floor(Math.random()*4)];
+    p.style.borderRadius='50%';
+    p.style.left=last.offsetLeft+last.offsetWidth/2+'px';
+    p.style.top=last.offsetTop+last.offsetHeight/2+'px';
+    p.style.pointerEvents='none';
+    p.style.opacity=1;
+    p.style.zIndex=1000;
+    document.body.appendChild(p);
+    const vx=(Math.random()-0.5)*8, vy=(Math.random()-0.5)*8;
+    let life=30;
+    function frame(){
+      p.style.left=parseFloat(p.style.left)+vx+'px';
+      p.style.top=parseFloat(p.style.top)+vy+'px';
+      p.style.opacity=parseFloat(p.style.opacity)-0.03;
+      life--;
+      if(life>0) requestAnimationFrame(frame);
+      else p.remove();
+    }
+    frame();
+  }
 }
 
 spinBtn.addEventListener('click',spinCase);
