@@ -246,92 +246,97 @@ function updateInventory(){
   });
 }
 
-// ✅ Korjattu rulla
-function spinCase() {
-  spinBtn.disabled = true;
-  const totalSlots = 10; // slots per cycle
-  const cycles = 6;
-  const finalRarity = weightedRarity();
-  const finalItem = getRandomItemForRarity(finalRarity);
-
-  const reelArray = [];
-  for (let i = 0; i < totalSlots; i++) {
-    if (i === Math.floor(totalSlots / 2)) reelArray.push(finalItem);
-    else reelArray.push(getRandomItemForRarity(weightedRarity()));
+// Roller snapping logic
+function generateRollerArray(totalSlots=40){
+  const finalRarity=weightedRarity();
+  const finalItem=getRandomItemForRarity(finalRarity);
+  const array=[];
+  for(let i=0;i<totalSlots;i++){
+    const r=weightedRarity();
+    array.push(getRandomItemForRarity(r));
   }
+  const midIndex=Math.floor(totalSlots/2);
+  array[midIndex]=finalItem;
+  return {array, finalItem, midIndex};
+}
 
-  const fullReel = [];
-  for (let i = 0; i < cycles; i++) fullReel.push(...reelArray);
+function spinCase(){
+  spinBtn.disabled = true;
+  let {array: reelArray, finalItem, midIndex} = generateRollerArray();
+  const totalSlots = reelArray.length;
+
+  const startOffset = Math.floor(Math.random() * (totalSlots - 2)) + 1;
+  reelArray = [...reelArray.slice(startOffset), ...reelArray.slice(0, startOffset)];
 
   reelEl.innerHTML = '';
-  fullReel.forEach(item => {
-    const span = document.createElement('span');
-    span.textContent = item.emoji;
-    span.className = item.rarity;
+  reelArray.forEach(item=>{
+    const span=document.createElement('span');
+    span.textContent=item.emoji;
+    span.className=item.rarity;
     reelEl.appendChild(span);
   });
 
-  requestAnimationFrame(() => {
-    const firstSpan = reelEl.querySelector('span');
-    const spanWidth = firstSpan.offsetWidth + 4;
-    const containerWidth = reelEl.parentElement.offsetWidth;
-    const centerOffset = containerWidth / 2 - spanWidth / 2;
+  const duration=5000;
+  const itemWidth=100;
+  let start=null;
 
-    const finalIndex = Math.floor(totalSlots / 2) + (cycles - 1) * totalSlots;
-    const targetOffset = finalIndex * spanWidth - centerOffset;
-
-    const duration = 4000;
-    let start = null;
-
-    function animate(ts) {
-      if (!start) start = ts;
-      const progress = Math.min((ts - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3);
-      reelEl.style.transform = `translateX(-${ease * targetOffset}px)`;
-      if (progress < 1) requestAnimationFrame(animate);
-      else {
-        inventory.push(finalItem);
-        updateInventory();
-        spinBtn.disabled = false;
-      }
+  function animate(timestamp){
+    if(!start) start=timestamp;
+    const progress=Math.min((timestamp-start)/duration,1);
+    const ease=1-Math.pow(1-progress,3);
+    const offset=ease*(totalSlots-1)*itemWidth;
+    reelEl.style.transform=`translateX(-${offset}px)`;
+    if(progress<1) requestAnimationFrame(animate);
+    else{
+      inventory.push(finalItem);
+      updateInventory();
+      spinBtn.disabled=false;
     }
-    requestAnimationFrame(animate);
-  });
+  }
+  requestAnimationFrame(animate);
 }
 
-// ✅ Gamble highlight
-function showGambleResult(item){
+// Gamble overlay korjattu
+function showGambleResult(item, callback){
   const overlay=document.createElement('div');
   overlay.style.position='fixed';
   overlay.style.top='50%';
   overlay.style.left='50%';
   overlay.style.transform='translate(-50%,-50%) scale(0.8)';
   overlay.style.padding='30px 40px';
-  overlay.style.background='rgba(0,0,0,0.85)';
+  overlay.style.background=({
+    grey:'#555',
+    blue:'#1e90ff',
+    purple:'#8b00ff',
+    red:'#e74c3c',
+    gold:'#ffd700'
+  })[item.rarity];
+  overlay.style.color=item.rarity==='gold'?'#111':'#fff';
   overlay.style.border='3px solid var(--accent)';
   overlay.style.borderRadius='16px';
   overlay.style.fontSize='2rem';
   overlay.style.fontWeight='800';
-  overlay.style.color='white';
   overlay.style.textAlign='center';
   overlay.style.zIndex='2000';
   overlay.style.opacity='0';
-  overlay.textContent=item.emoji + ' ' + item.name;
-
+  overlay.textContent=item.emoji+' '+item.name;
   document.body.appendChild(overlay);
 
   overlay.animate([
     {opacity:0, transform:'translate(-50%,-50%) scale(0.8)'},
     {opacity:1, transform:'translate(-50%,-50%) scale(1.1)'},
     {opacity:1, transform:'translate(-50%,-50%) scale(1)'}
-  ], {duration:600, easing:'ease-out'});
+  ], {duration:400, easing:'ease-out'});
 
   setTimeout(()=>{
     overlay.animate([
       {opacity:1, transform:'translate(-50%,-50%) scale(1)'},
       {opacity:0, transform:'translate(-50%,-50%) scale(0.8)'}
-    ], {duration:500, easing:'ease-in'}).onfinish = ()=>overlay.remove();
-  },1200);
+    ], {duration:500, easing:'ease-in'}).onfinish = () => {
+      overlay.remove();
+      if(callback) callback();
+    };
+  },1500);
 }
 
 // Gambling logic
@@ -368,11 +373,14 @@ function gambleItems(){
     item.condition=weightedCondition();
   }
 
+  // Poistetaan valitut itemit
   selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>inventory.splice(div.dataset.index,1));
-  inventory.push(item);
-  updateInventory();
 
-  showGambleResult(item); // ✅ highlight
+  // Näytetään overlay ja lisätään inventory vasta fade-outin jälkeen
+  showGambleResult(item, ()=>{
+    inventory.push(item);
+    updateInventory();
+  });
 }
 
 spinBtn.addEventListener('click',spinCase);
