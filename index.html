@@ -128,7 +128,7 @@ function updateInventory(){
   });
 }
 
-// ✅ Rulla
+// ✅ Spin case
 function spinCase() {
   spinBtn.disabled = true;
   const totalSlots = 10; 
@@ -219,22 +219,30 @@ function showGambleResult(item){
     animate();
 }
 
-// ✅ Gamble (tasapainotettu: rarity pysyy yleensä samana)
+// ✅ Gamble (tasapainotettu CS:GO-tyyli)
 function gambleItems(){
     const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
     if(selected.length===0) return alert("Select items to gamble!");
-    
+
     const rarityOrder=['grey','blue','purple','red','gold'];
     const baseOdds={grey:0.45,blue:0.35,purple:0.17,red:0.025,gold:0.005};
+    const n = selected.length;
 
+    // Selvitä minRarity
     const minRarity = rarityOrder.reduce((acc,r)=> selected.some(i=>i.classList.contains(r))?r:acc,'grey');
 
-    const odds={};
+    // Laske odds portaittain valitun määrän mukaan
+    const odds = {};
     for(const r of rarityOrder){
         if(rarityOrder.indexOf(r)<rarityOrder.indexOf(minRarity)) odds[r]=0;
-        else odds[r]=baseOdds[r];
+        else {
+            odds[r] = baseOdds[r];
+            // Pieni bonus useamman itemin mukaan
+            if(rarityOrder.indexOf(r) > rarityOrder.indexOf(minRarity)) odds[r] += 0.02*n;
+        }
     }
 
+    // Normalisointi
     let sum=0; for(const r in odds) sum+=odds[r]; for(const r in odds) odds[r]/=sum;
 
     function weightedGambleRarity(){ 
@@ -249,11 +257,15 @@ function gambleItems(){
 
     let rarity = weightedGambleRarity();
 
-    // Pieni mahdollisuus downgrade (18%)
-    if(rarityOrder.indexOf(rarity) > 0 && Math.random()<0.18){
+    // Pieni mahdollisuus downgrade (~12%)
+    if(rarityOrder.indexOf(rarity) > 0 && Math.random()<0.12){
         const rarityIndex = rarityOrder.indexOf(rarity);
-        const downgradeIndex = Math.max(rarityIndex-1,0);
-        rarity = rarityOrder[downgradeIndex];
+        rarity = rarityOrder[rarityIndex-1];
+    } 
+    // Pieni mahdollisuus upgrade, riippuu valittujen määrästä
+    else if(n>1 && Math.random() < 0.05*n){
+        const rarityIndex = rarityOrder.indexOf(rarity);
+        if(rarityIndex<rarityOrder.length-1) rarity = rarityOrder[rarityIndex+1];
     }
 
     const item = getRandomItemForRarity(rarity);
