@@ -109,22 +109,9 @@ const inventoryEl=document.getElementById('inventory');
 const spinBtn=document.getElementById('spinBtn');
 const gambleBtn=document.getElementById('gambleBtn');
 
-function weightedRarity(){
-  const r=Math.random();let sum=0;
-  for(const w of rarityChances){sum+=w.chance;if(r<sum) return w.rarity;}
-  return 'grey';
-}
-function weightedCondition(){
-  const r=Math.random();let sum=0;
-  for(const w of conditionChances){sum+=w.chance;if(r<sum) return w.condition;}
-  return 'FT';
-}
-function getRandomItemForRarity(rarity){
-  const pool=itemsByRarity[rarity];
-  const item=pool[Math.floor(Math.random()*pool.length)];
-  const condition=weightedCondition();
-  return {...item, rarity, condition};
-}
+function weightedRarity(){ const r=Math.random(); let sum=0; for(const w of rarityChances){sum+=w.chance;if(r<sum) return w.rarity;} return 'grey'; }
+function weightedCondition(){ const r=Math.random(); let sum=0; for(const w of conditionChances){sum+=w.chance;if(r<sum) return w.condition;} return 'FT'; }
+function getRandomItemForRarity(rarity){ const pool=itemsByRarity[rarity]; const item=pool[Math.floor(Math.random()*pool.length)]; const condition=weightedCondition(); return {...item, rarity, condition}; }
 function updateInventory(){
   inventoryEl.innerHTML='';
   inventory.forEach((item,index)=>{
@@ -141,13 +128,11 @@ function updateInventory(){
   });
 }
 
-// ✅ Korjattu rulla
+// ✅ Rulla
 function spinCase() {
   spinBtn.disabled = true;
-  const totalSlots = 10; 
-  const cycles = 6;
-  const finalRarity = weightedRarity();
-  const finalItem = getRandomItemForRarity(finalRarity);
+  const totalSlots = 10; const cycles = 6;
+  const finalRarity = weightedRarity(); const finalItem = getRandomItemForRarity(finalRarity);
   const reelArray = [];
   for (let i = 0; i < totalSlots; i++) {
     if (i === Math.floor(totalSlots / 2)) reelArray.push(finalItem);
@@ -156,12 +141,7 @@ function spinCase() {
   const fullReel = [];
   for (let i = 0; i < cycles; i++) fullReel.push(...reelArray);
   reelEl.innerHTML = '';
-  fullReel.forEach(item => {
-    const span = document.createElement('span');
-    span.textContent = item.emoji;
-    span.className = item.rarity;
-    reelEl.appendChild(span);
-  });
+  fullReel.forEach(item => { const span = document.createElement('span'); span.textContent = item.emoji; span.className = item.rarity; reelEl.appendChild(span); });
 
   requestAnimationFrame(() => {
     const firstSpan = reelEl.querySelector('span');
@@ -170,8 +150,7 @@ function spinCase() {
     const centerOffset = containerWidth / 2 - spanWidth / 2;
     const finalIndex = Math.floor(totalSlots / 2) + (cycles - 1) * totalSlots;
     const targetOffset = finalIndex * spanWidth - centerOffset;
-    const duration = 4000;
-    let start = null;
+    const duration = 4000; let start = null;
     function animate(ts) {
       if (!start) start = ts;
       const progress = Math.min((ts - start) / duration, 1);
@@ -184,81 +163,74 @@ function spinCase() {
   });
 }
 
-// 🔥 Keskelle ilmestyvä gamble-item animaatio
+// 🎯 Keskelle ilmestyvä gamble-item
 function showGambleResult(item) {
-  const rarityColors = { grey:'#555', blue:'#1e90ff', purple:'#8b00ff', red:'#e74c3c', gold:'#FFD700' };
-  const animDiv = document.createElement('div');
-  animDiv.style.position = 'fixed';
-  animDiv.style.left = '50%';
-  animDiv.style.top = '50%';
-  animDiv.style.transform = 'translate(-50%, -50%) scale(0)';
-  animDiv.style.padding = '20px 30px';
-  animDiv.style.borderRadius = '16px';
-  animDiv.style.fontSize = '2rem';
-  animDiv.style.fontWeight = '800';
-  animDiv.style.color = rarityColors[item.rarity];
-  animDiv.style.background = 'rgba(0,0,0,0.7)';
-  animDiv.style.zIndex = 10000;
-  animDiv.style.textAlign = 'center';
-  animDiv.textContent = `${item.emoji} ${item.name}`;
-  document.body.appendChild(animDiv);
-  let scale = 0;
-  let opacity = 0;
-  let duration = 60;
-  function animate(){
-    if(duration-- > 0){
-      scale += 0.05;
-      opacity += 0.05;
-      animDiv.style.transform = `translate(-50%, -50%) scale(${scale})`;
-      animDiv.style.opacity = opacity;
-      requestAnimationFrame(animate);
-    } else {
-      let fade=30;
-      function fadeOut(){
-        if(fade-- > 0){
-          animDiv.style.opacity -= 0.03;
-          requestAnimationFrame(fadeOut);
-        } else animDiv.remove();
-      }
-      fadeOut();
+    const animDiv = document.createElement('div');
+    animDiv.className = 'item ' + item.rarity; // sama luokka kuin inventoryssa
+    animDiv.style.position = 'fixed';
+    animDiv.style.left = '50%';
+    animDiv.style.top = '50%';
+    animDiv.style.transform = 'translate(-50%, -50%) scale(0)';
+    animDiv.style.zIndex = 10000;
+    animDiv.style.fontSize = '2rem';
+    animDiv.style.minWidth = '100px';
+    animDiv.style.padding = '12px 16px';
+    animDiv.style.textAlign = 'center';
+    animDiv.style.pointerEvents = 'none';
+    animDiv.textContent = item.emoji + ' ' + item.name;
+
+    const cond = document.createElement('span');
+    cond.className = 'condition-tag';
+    cond.textContent = item.condition;
+    animDiv.appendChild(cond);
+
+    document.body.appendChild(animDiv);
+
+    let scale = 0;
+    let opacity = 0;
+    let duration = 60;
+    function animate(){
+        if(duration-- > 0){
+            scale += 0.05; opacity += 0.05;
+            animDiv.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            animDiv.style.opacity = opacity;
+            requestAnimationFrame(animate);
+        } else {
+            let fade=30;
+            function fadeOut(){
+                if(fade-- > 0){ animDiv.style.opacity -= 0.03; requestAnimationFrame(fadeOut); } 
+                else animDiv.remove();
+            }
+            fadeOut();
+        }
     }
-  }
-  animate();
+    animate();
 }
 
-// ✅ Korjattu gambleItems
-function gambleItems() {
-    const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
-    if(selected.length === 0) return alert("Select items to gamble!");
-    const n = selected.length;
-    const rarityOrder = ['grey','blue','purple','red','gold'];
-    const minRarity = rarityOrder.reduce((acc,r) => selected.some(i => i.classList.contains(r)) ? r : acc, 'grey');
-    const baseOdds = { grey:0.45, blue:0.35, purple:0.17, red:0.025, gold:0.005 };
-    const odds = {};
+// ✅ Gamble
+function gambleItems(){
+    const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
+    if(selected.length===0) return alert("Select items to gamble!");
+    const n=selected.length;
+    const rarityOrder=['grey','blue','purple','red','gold'];
+    const minRarity=rarityOrder.reduce((acc,r)=> selected.some(i=>i.classList.contains(r))?r:acc,'grey');
+    const baseOdds={grey:0.45,blue:0.35,purple:0.17,red:0.025,gold:0.005};
+    const odds={};
     for(const r of rarityOrder){
-        if(rarityOrder.indexOf(r) < rarityOrder.indexOf(minRarity)) odds[r] = 0;
-        else odds[r] = baseOdds[r];
+        if(rarityOrder.indexOf(r)<rarityOrder.indexOf(minRarity)) odds[r]=0;
+        else odds[r]=baseOdds[r];
     }
-    for(const r in odds) odds[r] += n*0.002;
-    let sum = 0;
-    for(const r in odds) sum += odds[r];
-    for(const r in odds) odds[r] /= sum;
+    for(const r in odds) odds[r]+=n*0.002;
+    let sum=0;
+    for(const r in odds) sum+=odds[r];
+    for(const r in odds) odds[r]/=sum;
 
-    function weightedGambleRarity(){
-        const r = Math.random();
-        let total = 0;
-        for(const k in odds){
-            total += odds[k];
-            if(r < total) return k;
-        }
-        return minRarity;
-    }
+    function weightedGambleRarity(){ const r=Math.random(); let total=0; for(const k in odds){ total+=odds[k]; if(r<total) return k; } return minRarity; }
 
     let rarity = weightedGambleRarity();
     let item = getRandomItemForRarity(rarity);
 
-    // Downgrade max 1 rarity-taso jos yksittäinen item
-    if(n === 1 && Math.random() < 0.25 && rarity !== 'grey'){
+    if(n===1 && Math.random()<0.25 && rarity!=='grey'){
         const rarityIndex = rarityOrder.indexOf(rarity);
         const downgradeIndex = Math.max(rarityIndex - 1, 0);
         if(downgradeIndex !== rarityIndex){
@@ -267,18 +239,16 @@ function gambleItems() {
         }
     }
 
-    selected.sort((a,b)=>b.dataset.index - a.dataset.index)
-            .forEach(div => inventory.splice(div.dataset.index,1));
-
+    selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>inventory.splice(div.dataset.index,1));
     inventory.push(item);
     updateInventory();
     showGambleResult(item);
 
     // Confetti
-    const divs = Array.from(inventoryEl.children);
-    const last = divs[divs.length-1];
+    const divs=Array.from(inventoryEl.children);
+    const last=divs[divs.length-1];
     for(let i=0;i<20;i++){
-        const p = document.createElement('div');
+        const p=document.createElement('div');
         p.style.position='absolute';
         p.style.width='6px';
         p.style.height='6px';
