@@ -310,30 +310,40 @@ function generateRollerArray(totalSlots=40){
 
 function spinCase(){
   spinBtn.disabled=true;
-  const {array: reelArray, finalItem, midIndex}=generateRollerArray();
-  reelEl.innerHTML='';
-  reelArray.forEach(item=>{
-    const span=document.createElement('span');
-    span.textContent=item.emoji;
-    span.className=item.rarity;
+  const {array: reelArray, finalItem, midIndex} = generateRollerArray();
+
+  // random start index to avoid immediate spoil
+  let startIndex;
+  do {
+    startIndex = Math.floor(Math.random() * reelArray.length);
+  } while (startIndex === midIndex);
+
+  reelEl.innerHTML = '';
+  reelArray.forEach(item => {
+    const span = document.createElement('span');
+    span.textContent = item.emoji;
+    span.className = item.rarity;
     reelEl.appendChild(span);
   });
-  const duration=5000;
-  const itemWidth=100;
-  let start=null;
+
+  const duration = 5000;
+  const itemWidth = 100;
+  let start = null;
+
   function animate(timestamp){
-    if(!start) start=timestamp;
-    const progress=Math.min((timestamp-start)/duration,1);
-    const ease=1-Math.pow(1-progress,3);
-    const offset=ease*(reelArray.length-1)*itemWidth-midIndex*itemWidth;
-    reelEl.style.transform=`translateX(-${offset}px)`;
-    if(progress<1) requestAnimationFrame(animate);
+    if(!start) start = timestamp;
+    const progress = Math.min((timestamp-start)/duration, 1);
+    const ease = 1 - Math.pow(1-progress, 3);
+    const offset = ease*(reelArray.length-1)*itemWidth - midIndex*itemWidth + startIndex*itemWidth;
+    reelEl.style.transform = `translateX(-${offset}px)`;
+    if(progress < 1) requestAnimationFrame(animate);
     else{
       inventory.push(finalItem);
       updateInventory();
-      spinBtn.disabled=false;
+      spinBtn.disabled = false;
     }
   }
+
   requestAnimationFrame(animate);
 }
 
@@ -342,11 +352,11 @@ function gambleItems(){
   const selected=Array.from(inventoryEl.querySelectorAll('.item.selected'));
   if(selected.length===0) return alert("Select items to gamble!");
   const n=selected.length;
-  
+
   // determine min rarity among selected
   const rarityOrder=['grey','blue','purple','red','gold'];
   const minRarity=rarityOrder.reduce((acc,r)=> selected.some(i=>i.classList.contains(r))?r:acc,'grey');
-  
+
   // odds
   const baseOdds={grey:0.45,blue:0.35,purple:0.17,red:0.025,gold:0.005};
   const odds={};
@@ -354,17 +364,17 @@ function gambleItems(){
     if(rarityOrder.indexOf(r)<rarityOrder.indexOf(minRarity)) odds[r]=0;
     else odds[r]=baseOdds[r];
   }
-  
-  // scale odds by number of items (more items => better)
+
+  // scale odds by number of items
   for(const r in odds){
     odds[r]+=n*0.002;
   }
-  
+
   // normalize
   let sum=0;
   for(const r in odds) sum+=odds[r];
   for(const r in odds) odds[r]/=sum;
-  
+
   function weightedGambleRarity(){
     const r=Math.random();
     let total=0;
@@ -374,24 +384,27 @@ function gambleItems(){
     }
     return minRarity;
   }
-  
+
   const rarity=weightedGambleRarity();
   const item=getRandomItemForRarity(rarity);
-  
-  // single-item downgrade chance
-  if(n===1 && Math.random()<0.15 && rarity!=='grey'){
-    const downgradeIndex=Math.max(rarityOrder.indexOf(rarity)-1,0);
-    item.rarity=rarityOrder[downgradeIndex];
-    item.condition=weightedCondition();
+
+  // single-item downgrade chance (higher for gold)
+  if(n===1){
+    const downgradeChance = item.rarity==='gold'?0.25:item.rarity==='red'?0.15:0.05;
+    if(Math.random()<downgradeChance && rarity!=='grey'){
+      const downgradeIndex=Math.max(rarityOrder.indexOf(rarity)-1,0);
+      item.rarity=rarityOrder[downgradeIndex];
+      item.condition=weightedCondition();
+    }
   }
-  
+
   selected.sort((a,b)=>b.dataset.index-a.dataset.index).forEach(div=>{
     inventory.splice(div.dataset.index,1);
   });
   inventory.push(item);
   updateInventory();
-  
-  // small sparkle effect around item
+
+  // sparkle effect around item
   const divs=Array.from(inventoryEl.children);
   const last=divs[divs.length-1];
   for(let i=0;i<20;i++){
