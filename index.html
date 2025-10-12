@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Case Opener Go</title>
+<title>💥 O Block Case Opener</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -15,143 +15,56 @@
   --bg-dark:#1e1e2f;
 }
 
-/* General reset */
-html,body{
-  margin:0;
-  height:100%;
-  font-family:'Inter',sans-serif;
-  overflow-x:hidden;
-  background:linear-gradient(135deg,var(--royal-blue-1),var(--royal-blue-2));
-  color:#fff;
-}
+/* Reset & base */
+html,body{margin:0;height:100%;font-family:'Inter',sans-serif;overflow-x:hidden;background:linear-gradient(135deg,var(--royal-blue-1),var(--royal-blue-2));color:#fff}
 
 /* Sparkle canvas */
-#sparkleCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+#sparkleCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 
-/* Main container */
-.container{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  padding:24px;
-  text-align:center;
-  z-index:1;
-  position:relative;
-}
-
-/* Roller panel */
-.roller-panel{
-  margin-top:40px;
-  padding:28px 20px;
-  border-radius:14px;
-  background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
-  border:1px solid rgba(255,255,255,0.06);
-  backdrop-filter:blur(6px);
-  box-shadow:0 18px 40px rgba(0,0,0,0.45);
-  width:fit-content;
-}
+/* Layout */
+.container{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;text-align:center;z-index:1;position:relative}
+.roller-panel{margin-top:40px;padding:28px 20px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(6px);box-shadow:0 18px 40px rgba(0,0,0,0.45);width:fit-content}
 
 /* Roller */
-.roller-container {
-  position: relative;
-  width: 400px;
-  height: 100px;
-  overflow: hidden;
-  margin: 20px auto;
-  border-radius: 16px;
-  border: 2px solid var(--accent);
-  background: var(--bg-dark);
-  box-shadow: inset 0 0 10px rgba(255,153,0,0.3);
-}
-.reel {
-  display:flex;
-  align-items:center;
-  height:100%;
-  will-change: transform;
-}
-.reel span {
-  min-width:100px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:2.5rem;
-  flex-shrink:0;
-  margin:0 2px;
-  border-radius:12px;
-  font-weight:800;
-  box-shadow: 0 0 5px rgba(0,0,0,0.5);
-}
-.indicator {
-  position:absolute;
-  top:0;
-  left:50%;
-  width:100px;
-  height:100%;
-  margin-left:-50px;
-  border:3px solid var(--accent);
-  pointer-events:none;
-  box-shadow: 0 0 10px var(--accent);
-}
+.roller-container{position:relative;width:400px;height:100px;overflow:hidden;margin:20px auto;border-radius:16px;border:2px solid var(--accent);background:var(--bg-dark);box-shadow:inset 0 0 10px rgba(255,153,0,0.2)}
+.reel{display:flex;align-items:center;height:100%;will-change:transform}
+.reel span{min-width:100px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;margin:0 2px;border-radius:12px;font-weight:800;box-shadow:0 0 5px rgba(0,0,0,0.5)}
+.indicator{position:absolute;top:0;left:50%;width:100px;height:100%;margin-left:-50px;border:3px solid var(--accent);pointer-events:none;box-shadow:0 0 10px var(--accent)}
 
 /* Inventory */
-.inventory{
-  margin-top:30px;
-  max-width:800px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  justify-content:center;
-  border-top:2px solid var(--accent);
-  padding-top:10px;
-}
-.item{
-  padding:10px 14px;
-  border-radius:12px;
-  font-weight:600;
-  min-width:70px;
-  text-align:center;
-  cursor:pointer;
-  user-select:none;
-  border:2px solid var(--accent);
-  box-shadow: 0 0 8px rgba(0,0,0,0.5);
-}
-.item.selected{outline:2px solid #fff;}
-.grey { background-color:#555;color:#fff; }
-.blue { background-color:#1e90ff;color:#fff; }
-.purple { background-color:#8b00ff;color:#fff; }
-.red { background-color:#e74c3c;color:#fff; }
-.gold { background-color:#ffd700;color:#111; }
+.inventory{margin-top:30px;max-width:840px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;border-top:2px solid var(--accent);padding-top:10px}
+.item{padding:10px 14px;border-radius:12px;font-weight:600;min-width:240px;text-align:left;cursor:pointer;user-select:none;border:2px solid var(--accent);box-shadow:0 0 8px rgba(0,0,0,0.5);position:relative;display:flex;align-items:center;gap:10px}
+.item .emoji{font-size:1.6rem}
+.item .label{font-weight:800}
+.item .meta{margin-left:auto;font-weight:800;background:rgba(255,255,255,0.9);color:#111;padding:3px 8px;border-radius:8px;font-size:0.75rem}
+.item.selected{outline:3px solid rgba(255,255,255,0.12)}
+
+/* Rarity colors */
+.grey{background:#555;color:#fff}
+.blue{background:#1e90ff;color:#fff}
+.purple{background:#8b00ff;color:#fff}
+.red{background:#e74c3c;color:#fff}
+.gold{background:#ffd700;color:#111}
 
 /* Buttons */
-.btn{
-  background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-  color:#111;
-  padding:12px 20px;
-  border-radius:14px;
-  border:none;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 10px 30px rgba(184,134,11,0.12);
-  margin:5px;
-}
-.btn:active{transform:translateY(1px) scale(.995);}
+.btn{background:linear-gradient(180deg,var(--gold-1),var(--gold-2));color:#111;padding:12px 20px;border-radius:14px;border:none;font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(184,134,11,0.12);margin:5px}
+.btn:active{transform:translateY(1px) scale(.995)}
 
-/* Story section */
-.story{
-  max-width:820px;
-  margin:40px auto;
-  padding:36px 22px;
-  background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,0.03);
-  opacity:0;
-  transform:translateY(20px);
-  transition:opacity .6s ease,transform .6s ease;
-}
-.story.visible{opacity:1;transform:none;}
-.story h2{color:var(--gold-1);margin:0 0 10px;font-size:1.8rem;}
+/* Story */
+.story{max-width:820px;margin:40px auto;padding:36px 22px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px;border:1px solid rgba(255,255,255,0.03);opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.story.visible{opacity:1;transform:none}
+.story h2{color:var(--gold-1);margin:0 0 10px;font-size:1.8rem}
+
+/* Flash animations */
+@keyframes flash-up {0%{box-shadow:0 0 0 gold;transform:scale(1)}40%{box-shadow:0 0 28px gold;transform:scale(1.08)}100%{box-shadow:0 0 0 gold;transform:scale(1)}}
+@keyframes flash-down {0%{box-shadow:0 0 0 #ff4d4d;transform:scale(1)}40%{box-shadow:0 0 28px #ff4d4d;transform:scale(1.08)}100%{box-shadow:0 0 0 #ff4d4d;transform:scale(1)}}
+@keyframes flash-neutral {0%{box-shadow:0 0 0 #fff;transform:scale(1)}40%{box-shadow:0 0 18px #fff;transform:scale(1.06)}100%{box-shadow:0 0 0 #fff;transform:scale(1)}}
+.flash-up{animation:flash-up .9s ease-out}
+.flash-down{animation:flash-down .9s ease-out}
+.flash-neutral{animation:flash-neutral .9s ease-out}
+
+/* Particle (burst) */
+.particle{position:absolute;width:8px;height:8px;border-radius:50%;opacity:0;pointer-events:none;z-index:9999;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4))}
 </style>
 </head>
 <body>
@@ -159,18 +72,22 @@ html,body{
 <canvas id="sparkleCanvas"></canvas>
 
 <div class="container">
-  <h1>Case Opener Go</h1>
-  
+  <h1>💥 O Block Case Opener</h1>
+
   <div class="roller-panel">
     <div class="roller-container">
       <div class="reel" id="reel"></div>
       <div class="indicator"></div>
     </div>
-    <button class="btn" id="spinBtn">Open Case</button>
-    
-    <h2>Inventory</h2>
+
+    <div style="display:flex;align-items:center;gap:12px;justify-content:center">
+      <button class="btn" id="spinBtn">Open Case</button>
+    </div>
+
+    <h2 style="margin-top:18px">Inventory</h2>
     <div class="inventory" id="inventory"></div>
-    <div class="gamble-section">
+
+    <div class="gamble-section" style="margin-top:14px">
       <h2>Gamble Selected Items</h2>
       <button class="btn" id="gambleBtn">Gamble</button>
     </div>
@@ -178,40 +95,22 @@ html,body{
 </div>
 
 <div class="story" id="story">
-  <h2>Gold Legends</h2>
-  <p>
-    Gold Gold Gold! Step into the world of cases, where patience and trust in luck is tested. Collect weapons and items, gamble wisely and get the best inventory in the world !
-  </p>
+  <h2>🏙️ O Block Legends</h2>
+  <p>Step into the streets of O Block. Collect rare weapons in top condition — gamble wisely, build your collection, and chase FN legends.</p>
 </div>
 
 <script>
-// Sparkles
-const canvas=document.getElementById('sparkleCanvas');
-const ctx=canvas.getContext('2d');
-function sizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+// sparkles background
+const canvas = document.getElementById('sparkleCanvas');
+const ctx = canvas.getContext('2d');
+function sizeCanvas(){canvas.width = innerWidth; canvas.height = innerHeight;}
 sizeCanvas();
-const sparkles=[];
-for(let i=0;i<100;i++){sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.6,speed:Math.random()*0.35+0.05,opacity:Math.random()*0.7+0.2});}
-function animateSparkles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  for(const s of sparkles){
-    ctx.beginPath();
-    ctx.fillStyle=`rgba(255,215,130,${s.opacity})`;
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fill();
-    s.y-=s.speed;
-    if(s.y<-8){s.y=canvas.height+6;s.x=Math.random()*canvas.width;}
-  }
-  requestAnimationFrame(animateSparkles);
-}
-animateSparkles();
-window.addEventListener('resize',sizeCanvas);
+window.addEventListener('resize', sizeCanvas);
+const sparkles = [];
+for(let i=0;i<100;i++) sparkles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+0.7,spd:Math.random()*0.3+0.05,op:Math.random()*0.7+0.2});
+(function animS(){ctx.clearRect(0,0,canvas.width,canvas.height);for(const s of sparkles){ctx.beginPath();ctx.fillStyle=`rgba(255,215,130,${s.op})`;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();s.y -= s.spd;if(s.y < -10){s.y = canvas.height + 8; s.x = Math.random()*canvas.width;}}requestAnimationFrame(animS)})();
 
-// Story
-const story=document.getElementById('story');
-story.classList.add('visible');
-
-// Case opener logic
+// Data
 const itemsByRarity = {
   grey: [{name:'Pistol',emoji:'🔫'},{name:'Shotgun',emoji:'🛠️'},{name:'SMG',emoji:'🟡'}],
   blue: [{name:'Pistol',emoji:'🔫'},{name:'SMG',emoji:'🟡'},{name:'AR',emoji:'🔰'}],
@@ -219,157 +118,279 @@ const itemsByRarity = {
   red: [{name:'AR',emoji:'🔰'},{name:'Sniper',emoji:'🎯'}],
   gold: [{name:'Knife',emoji:'🔪'},{name:'Gloves',emoji:'🧤'}]
 };
-const rarityChances=[{rarity:'grey',chance:0.45},{rarity:'blue',chance:0.35},{rarity:'purple',chance:0.17},{rarity:'red',chance:0.025},{rarity:'gold',chance:0.005}];
-const conditions = ['FT','WW','MW','FN'];
-let inventory=[];
-const reelEl=document.getElementById('reel');
-const inventoryEl=document.getElementById('inventory');
-const spinBtn=document.getElementById('spinBtn');
-const gambleBtn=document.getElementById('gambleBtn');
+const rarityChances = [
+  {rarity:'grey', chance:0.45},
+  {rarity:'blue', chance:0.35},
+  {rarity:'purple', chance:0.17},
+  {rarity:'red', chance:0.025},
+  {rarity:'gold', chance:0.005}
+];
+const rarityOrder = ['grey','blue','purple','red','gold'];
+
+// conditions: FT most common, WW, MW, FN rarest
+function getRandomCondition(){
+  const r = Math.random();
+  if(r < 0.45) return 'FT';
+  if(r < 0.75) return 'WW';
+  if(r < 0.95) return 'MW';
+  return 'FN';
+}
 
 function weightedRarity(){
-  const r=Math.random();
-  let sum=0;
-  for(const w of rarityChances){
-    sum+=w.chance;
-    if(r<sum) return w.rarity;
-  }
+  const r = Math.random();
+  let sum = 0;
+  for(const w of rarityChances){ sum += w.chance; if(r < sum) return w.rarity; }
   return 'grey';
 }
-
-function getRandomCondition(){
-  // FT most common, then WW, MW, FN
-  const r=Math.random();
-  if(r<0.45) return 'FT';
-  else if(r<0.75) return 'WW';
-  else if(r<0.95) return 'MW';
-  else return 'FN';
-}
-
 function getRandomItemForRarity(rarity){
-  const pool=itemsByRarity[rarity];
-  const item=pool[Math.floor(Math.random()*pool.length)];
-  const condition = getRandomCondition();
-  return {...item, rarity, condition};
+  const pool = itemsByRarity[rarity];
+  const base = pool[Math.floor(Math.random()*pool.length)];
+  return {...base, rarity, condition: getRandomCondition() };
 }
+
+// UI & inventory
+let inventory = [];
+const reelEl = document.getElementById('reel');
+const inventoryEl = document.getElementById('inventory');
+const spinBtn = document.getElementById('spinBtn');
+const gambleBtn = document.getElementById('gambleBtn');
 
 function updateInventory(){
-  inventoryEl.innerHTML='';
-  inventory.forEach((item,index)=>{
-    const div=document.createElement('div');
-    div.className='item '+item.rarity;
-    div.textContent=`${item.emoji} ${item.name} [${item.condition}]`;
-    div.dataset.index=index;
-    div.addEventListener('click',()=>div.classList.toggle('selected'));
+  inventoryEl.innerHTML = '';
+  inventory.forEach((it,index)=>{
+    const div = document.createElement('div');
+    div.className = 'item ' + it.rarity;
+    div.dataset.index = index;
+    div.innerHTML = `<span class="emoji">${it.emoji}</span><span class="label">${it.name}</span><span class="meta">${it.rarity.toUpperCase()}</span><span class="meta" style="margin-left:8px;background:rgba(0,0,0,0.12);color:#fff;padding:3px 6px;border-radius:6px;margin-left:auto">${it.condition}</span>`;
+    // keep clicks to toggle selection
+    div.addEventListener('click', ()=> div.classList.toggle('selected'));
     inventoryEl.appendChild(div);
   });
 }
 
-// Roller snapping logic
-function generateRollerArray(totalSlots=40){
-  const finalRarity=weightedRarity();
-  const finalItem=getRandomItemForRarity(finalRarity);
-  const array=[];
+// roller generation & spin
+function generateRollerArray(totalSlots = 40){
+  const finalRarity = weightedRarity();
+  const finalItem = getRandomItemForRarity(finalRarity);
+  const arr = [];
   for(let i=0;i<totalSlots;i++){
-    const r=weightedRarity();
-    array.push(getRandomItemForRarity(r));
+    arr.push(getRandomItemForRarity(weightedRarity()));
   }
-  const midIndex=Math.floor(totalSlots/2);
-  array[midIndex]=finalItem;
-  return {array, finalItem, midIndex};
+  const mid = Math.floor(totalSlots/2);
+  arr[mid] = finalItem;
+  return { array: arr, finalItem, midIndex: mid };
 }
 
 function spinCase(){
-  spinBtn.disabled=true;
-  const {array: reelArray, finalItem, midIndex}=generateRollerArray();
-  reelEl.innerHTML='';
-  reelArray.forEach(item=>{
-    const span=document.createElement('span');
-    span.textContent=item.emoji; // condition hidden on roller
-    span.className=item.rarity;
+  spinBtn.disabled = true;
+  const { array: reelArray, finalItem, midIndex } = generateRollerArray();
+  reelEl.innerHTML = '';
+  reelArray.forEach(it=>{
+    const span = document.createElement('span');
+    span.className = it.rarity;
+    span.textContent = it.emoji; // hide condition on reel
     reelEl.appendChild(span);
   });
-  const duration=5000;
-  const itemWidth=100;
-  let start=null;
-  function animate(timestamp){
-    if(!start) start=timestamp;
-    const progress=Math.min((timestamp-start)/duration,1);
-    const ease=1-Math.pow(1-progress,3);
-    const offset=ease*(reelArray.length-1)*itemWidth - midIndex*itemWidth;
-    reelEl.style.transform=`translateX(-${offset}px)`;
-    if(progress<1) requestAnimationFrame(animate);
-    else{
+
+  const duration = 5000;
+  const itemWidth = 100;
+  let start = null;
+  function animate(ts){
+    if(!start) start = ts;
+    const progress = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const offset = ease * (reelArray.length - 1) * itemWidth - midIndex * itemWidth;
+    reelEl.style.transform = `translateX(-${offset}px)`;
+    if(progress < 1) requestAnimationFrame(animate);
+    else {
+      // add to inventory and re-enable
       inventory.push(finalItem);
       updateInventory();
-      spinBtn.disabled=false;
+      spinBtn.disabled = false;
     }
   }
   requestAnimationFrame(animate);
 }
 
-// Gambling logic with min rarity & condition boost
-function gambleItems(){
-  const selected = Array.from(inventoryEl.querySelectorAll('.item.selected'));
-  if(selected.length===0) return alert("Select items to gamble!");
-  
-  const baseOdds = { grey:0.45, blue:0.35, purple:0.17, red:0.025, gold:0.005 };
-  const rarityOrder = ['grey','blue','purple','red','gold'];
-  
-  // Determine minimum allowed rarity
-  const selectedRarities = selected.map(div => inventory[div.dataset.index].rarity);
-  const minRarityIndex = Math.max(...selectedRarities.map(r => rarityOrder.indexOf(r)));
-  
-  // Initialize odds & remove lower rarities
-  let odds = {...baseOdds};
-  for(let i=0;i<minRarityIndex;i++) odds[rarityOrder[i]]=0;
-  
-  // Apply condition-based boosts
-  selected.forEach(div=>{
-    const item = inventory[div.dataset.index];
-    let boost=0;
-    switch(item.condition){
-      case 'FN': boost=0.05; break;
-      case 'MW': boost=0.03; break;
-      case 'FT': boost=0.015; break;
-      case 'WW': boost=0.005; break;
-    }
-    for(let i=minRarityIndex+1;i<rarityOrder.length;i++){
-      const r = rarityOrder[i];
-      odds[r] += boost*(i - minRarityIndex);
-    }
-  });
-  
-  // Normalize odds
-  let sum = Object.values(odds).reduce((a,b)=>a+b,0);
-  for(const k in odds) odds[k]/=sum;
-  
-  // Weighted pick
-  const r = Math.random();
-  let total=0;
-  let pickedRarity = rarityOrder[minRarityIndex];
-  for(const k of rarityOrder.slice(minRarityIndex)){
-    total += odds[k];
-    if(r<total){
-      pickedRarity=k;
-      break;
-    }
+// particle burst helper
+function createParticleBurst(targetEl, color){
+  const rect = targetEl.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  const count = 14;
+  for(let i=0;i<count;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.background = color;
+    document.body.appendChild(p);
+    p.style.left = `${cx}px`;
+    p.style.top = `${cy}px`;
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 24 + Math.random() * 40;
+    const tx = cx + Math.cos(angle) * dist;
+    const ty = cy + Math.sin(angle) * dist - (Math.random()*10);
+    const dur = 650 + Math.random()*350;
+    p.animate([
+      { transform: 'translate(0,0) scale(1)', opacity: 1 },
+      { transform: `translate(${tx - cx}px, ${ty - cy}px) scale(.6)`, opacity: 0 }
+    ], { duration: dur, easing: 'cubic-bezier(.16,.84,.35,1)' }).onfinish = ()=> p.remove();
   }
-  
-  const item=getRandomItemForRarity(pickedRarity);
-  
-  // Remove selected items
-  selected.sort((a,b)=>b.dataset.index - a.dataset.index).forEach(div=>{
-    inventory.splice(div.dataset.index,1);
-  });
-  
-  inventory.push(item);
-  updateInventory();
-  alert(`You gambled ${selected.length} items and got: ${item.emoji} ${item.name} (${item.rarity}, ${item.condition})`);
 }
 
-spinBtn.addEventListener('click',spinCase);
-gambleBtn.addEventListener('click',gambleItems);
+// helper to pick weighted rarity from object (values must sum to 1 or not)
+function pickWeightedFromObj(weights){
+  const entries = Object.entries(weights);
+  let sum = entries.reduce((s, e) => s + e[1], 0);
+  if(sum <= 0){
+    // equal among allowed keys
+    const k = entries.map(e=>e[0]);
+    return k[Math.floor(Math.random()*k.length)];
+  }
+  const r = Math.random()*sum;
+  let acc = 0;
+  for(const [k,v] of entries){
+    acc += v;
+    if(r <= acc) return k;
+  }
+  return entries[entries.length-1][0];
+}
+
+// rarity rank
+function rarityRank(r){ return rarityOrder.indexOf(r); }
+
+// --- gambling with min-rarity, condition boosts, and downgrade protections + visual effects ---
+function gambleItems(){
+  const selectedEls = Array.from(inventoryEl.querySelectorAll('.item.selected'));
+  if(selectedEls.length === 0) return; // do nothing if none selected
+
+  const selectedIdx = selectedEls.map(el => parseInt(el.dataset.index,10)).sort((a,b)=>a-b);
+  const selectedItems = selectedIdx.map(i => inventory[i]);
+  const n = selectedItems.length;
+
+  // base odds
+  let odds = { grey:0.45, blue:0.35, purple:0.17, red:0.025, gold:0.005 };
+
+  // determine min floor: if all same rarity, can't drop below it
+  const allSame = selectedItems.every(it => it.rarity === selectedItems[0].rarity);
+  const minRarityIndex = allSame ? rarityRank(selectedItems[0].rarity) : Math.min(...selectedItems.map(it => rarityRank(it.rarity)));
+
+  // zero out rarities below floor
+  for(let i=0;i<minRarityIndex;i++) odds[rarityOrder[i]] = 0;
+
+  // apply condition-based boosts (higher conditions push weight to higher rarities)
+  selectedItems.forEach(it=>{
+    let boost = 0;
+    switch(it.condition){
+      case 'FN': boost = 0.06; break;
+      case 'MW': boost = 0.03; break;
+      case 'FT': boost = 0.015; break;
+      case 'WW': boost = 0.006; break;
+    }
+    // distribute boost to rarities strictly above min
+    for(let i=minRarityIndex+1;i<rarityOrder.length;i++){
+      odds[rarityOrder[i]] += boost * (i - minRarityIndex);
+    }
+    // penalize grey a bit
+    if(odds.grey) odds.grey = Math.max(0, odds.grey - boost * 0.6);
+  });
+
+  // normalize odds so they sum > 0
+  let sum = Object.values(odds).reduce((a,b)=>a+b,0);
+  if(sum <= 0){
+    // if nothing left (edge case), give equal chance among allowed rarities
+    const allowed = rarityOrder.slice(minRarityIndex);
+    odds = { grey:0,blue:0,purple:0,red:0,gold:0 };
+    allowed.forEach(r=> odds[r] = 1/allowed.length);
+  } else {
+    for(const k in odds) odds[k] /= sum;
+  }
+
+  // DOWGRADE CHANCE (exploit protection)
+  // - single item: ~15% base downgrade chance
+  // - multi item: small base downgrade (3%)
+  // - increases slightly if average rarity is high
+  const avgRarityVal = selectedItems.reduce((s,it)=>s + (rarityRank(it.rarity)+1),0) / n; // 1..5
+  let baseDowngrade = (n === 1) ? 0.15 : 0.03;
+  const rarityPenalty = Math.min(0.12, Math.max(0, (avgRarityVal - 2.0) * 0.03));
+  let downgradeChance = Math.min(0.5, baseDowngrade + rarityPenalty);
+
+  // pick rarity from odds
+  const picked = pickWeightedFromObj(odds);
+
+  // apply downgrade: if triggered, lower by one step if possible (but not below minRarityIndex)
+  let finalRarity = picked;
+  if(Math.random() < downgradeChance){
+    const pickedIndex = rarityRank(picked);
+    if(pickedIndex > minRarityIndex){
+      finalRarity = rarityOrder[pickedIndex - 1];
+    } else {
+      // can't lower rarity; mark to apply condition downgrade later (handled below)
+      finalRarity = picked;
+    }
+  }
+
+  // Determine new condition biased by average condition
+  const condVal = { FT:1, WW:2, MW:3, FN:4 };
+  const invCond = {1:'FT',2:'WW',3:'MW',4:'FN'};
+  const avgCond = selectedItems.reduce((s,it)=>s + condVal[it.condition], 0) / n; // 1..4
+  // base condition weights
+  let condWeights = { FT:0.45, WW:0.30, MW:0.18, FN:0.07 };
+  // bias toward avgCond moderately
+  for(const c of Object.keys(condWeights)){
+    const diff = avgCond - condVal[c];
+    condWeights[c] = Math.max(0, condWeights[c] + diff * 0.055);
+  }
+  // normalize cond weights
+  let cs = Object.values(condWeights).reduce((a,b)=>a+b,0);
+  for(const k in condWeights) condWeights[k] /= cs;
+
+  // pick condition
+  let finalCondition = pickWeightedFromObj(condWeights);
+
+  // If downgrade triggered but rarity couldn't be lowered, we attempt a condition downgrade
+  if(Math.random() < (downgradeChance * 0.6)){
+    // downgrade condition by one if possible
+    const cur = condVal[finalCondition];
+    if(cur > 1) finalCondition = invCond[cur - 1];
+  }
+
+  // build new item
+  const pool = itemsByRarity[finalRarity];
+  const base = pool[Math.floor(Math.random()*pool.length)];
+  const newItem = {...base, rarity: finalRarity, condition: finalCondition};
+
+  // Remove gambled items from inventory (descending indices)
+  selectedIdx.slice().sort((a,b)=>b-a).forEach(i => inventory.splice(i,1));
+
+  // push new item & update inventory
+  inventory.push(newItem);
+  updateInventory();
+
+  // Visual feedback: flash + particle burst instead of alert
+  const newIndex = inventory.length - 1;
+  // find new element (rebuild created data-indexes in updateInventory)
+  const newEl = inventoryEl.querySelector(`[data-index="${newIndex}"]`);
+  if(newEl){
+    if(rarityRank(newItem.rarity) > Math.max(...selectedItems.map(it=>rarityRank(it.rarity)))) {
+      newEl.classList.add('flash-up');
+      createParticleBurst(newEl, '#FFD700'); // gold
+    } else if(rarityRank(newItem.rarity) < Math.max(...selectedItems.map(it=>rarityRank(it.rarity)))) {
+      newEl.classList.add('flash-down');
+      createParticleBurst(newEl, '#FF4D4D'); // red
+    } else {
+      newEl.classList.add('flash-neutral');
+      createParticleBurst(newEl, '#FFFFFF'); // white neutral
+    }
+    newEl.addEventListener('animationend', ()=> newEl.classList.remove('flash-up','flash-down','flash-neutral'), { once: true });
+  }
+}
+
+// events
+spinBtn.addEventListener('click', spinCase);
+gambleBtn.addEventListener('click', gambleItems);
+
+// init story reveal
+document.getElementById('story').classList.add('visible');
 updateInventory();
 </script>
 </body>
